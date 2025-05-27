@@ -1,0 +1,114 @@
+"use client";
+
+import React, { useState } from "react";
+import { Menu, X, UserCircle } from "lucide-react";
+import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
+
+const Header: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
+
+  const navigationItems = [
+    { href: "/programs", label: "Programs" },
+    { href: "/schedule", label: "Schedule" },
+    { href: "/gyms", label: "Gyms" },
+    { href: "/profile", label: "Profile" },
+  ];
+
+  return (
+    <header className="fixed w-full top-0 z-50 bg-[#1A1D23]/90 backdrop-blur-md shadow-sm border-b border-white/10">
+      <nav className="container mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-3">
+            <img src="/logo1.png" alt="V21 Fit Logo" width={120} height={120} />
+          </Link>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navigationItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-[#858B95] hover:text-[#C15364] transition-colors duration-300"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Auth Buttons */}
+          {status === "authenticated" ? (
+            <div className="hidden md:flex items-center space-x-4">
+              <Link href="/profile">
+                <UserCircle className="w-7 h-7 text-[#C15364] hover:text-[#ffffff]" />
+              </Link>
+              <button
+                className="px-4 py-2 text-[#858B95] hover:text-[#C15364] transition-colors duration-300"
+                onClick={() => signOut()}
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center space-x-4">
+              <Link href="/auth/Sign-In">
+                <button className="px-4 py-2 text-[#858B95] hover:text-[#C15364] transition-colors duration-300">
+                  Sign In
+                </button>
+              </Link>
+              <Link href="/auth/Sign-Up">
+                <button className="px-6 py-2 bg-gradient-to-r from-[#C15364] to-[#858B95] text-white rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                  Get Started
+                </button>
+              </Link>
+            </div>
+          )}
+
+          {/* Mobile Toggle */}
+          <button
+            className="md:hidden text-white"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden mt-4 pb-4 border-t border-white/10 backdrop-blur-md">
+            <div className="flex flex-col space-y-4 pt-4">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="px-2 py-1 text-[#858B95] hover:text-[#C15364] transition-colors duration-300"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              {status === "authenticated" ? (
+                <button
+                  onClick={() => signOut()}
+                  className="mt-4 px-6 py-2 bg-red-500 text-white rounded-full"
+                >
+                  Sign Out
+                </button>
+              ) : (
+                <Link href="/auth/signin">
+                  <button className="mt-4 px-6 py-2 bg-gradient-to-r from-[#C15364] to-[#858B95] text-white rounded-full">
+                    Get Started
+                  </button>
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+      </nav>
+    </header>
+  );
+};
+
+export default Header;

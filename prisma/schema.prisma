@@ -1,0 +1,151 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+enum Role {
+  USER
+  ADMIN
+  TRAINER
+  NUTRITIONIST
+}
+
+enum ProgramLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model User {
+  id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String             @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  role          Role               @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  cart          Cart?
+  payments      Payment[] // ✅ backref
+  purchases     PurchasedProgram[] // ✅ backref
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
+
+model Product {
+  id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String
+  price         Float
+  originalPrice Float?
+  duration      String
+  level         ProgramLevel
+  category      String
+  instructor    String
+  rating        Float
+  reviews       Int
+  students      Int
+  image         String
+  features      String[]
+  tags          String[]
+  isFeatured    Boolean            @default(false)
+  isPopular     Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  carts         CartItem[]
+  purchases     PurchasedProgram[] // ✅ backref
+}
+
+model Cart {
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String     @unique @db.ObjectId
+  user           User       @relation(fields: [userId], references: [id])
+  items          CartItem[]
+  totalItems     Int        @default(0)
+  totalAmount    Float      @default(0)
+  appliedPromo   String?
+  discountAmount Float      @default(0)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  cartId    String   @db.ObjectId
+  productId String   @db.ObjectId
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float // Snapshot of price at time of addition
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Payment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String
+  paymentId String
+  signature String
+  userId    String   @db.ObjectId
+  amount    Float
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model PurchasedProgram {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  programId String   @db.ObjectId
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  program Product @relation(fields: [programId], references: [id])
+}
