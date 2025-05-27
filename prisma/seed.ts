@@ -4,25 +4,29 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const password = "Sidyat1234@#"; // Replace this with your new password
-  const hashedPassword = await bcrypt.hash(password, 12); // Hash the new password with bcrypt
 
-  // Create the admin user with the hashed password
-  const adminUser = await prisma.user.upsert({
-    where: { email: "admin@example.com" }, // Assuming you're updating this user's password
+
+  // Seed Razorpay Test User
+  const razorpayPassword = "razorpay@#$";
+  const hashedRazorpayPassword = await bcrypt.hash(razorpayPassword, 12);
+
+  const razorpayUser = await prisma.user.upsert({
+    where: { email: "razorpay@gmail.com" },
     update: {
-      password: hashedPassword, // Update the password if user already exists
+      password: hashedRazorpayPassword,
     },
     create: {
-      name: "Admin User",
-      email: "admin@example.com",
+      name: "Razorpay Test User",
+      email: "razorpay@gmail.com",
       emailVerified: new Date(),
-      password: hashedPassword, // Set the new hashed password
-      role: "ADMIN",
+      password: hashedRazorpayPassword,
+      role: "USER",
     },
   });
 
-  console.log("Admin user has been seeded:", adminUser);
+  console.log("Seeded users:");
+ 
+  console.log("Razorpay User:", razorpayUser);
 }
 
 main()
