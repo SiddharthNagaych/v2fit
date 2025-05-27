@@ -157,7 +157,7 @@ export const ScheduleSection: React.FC = () => {
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">Book Your Spot</h3>
                   <p className="text-[#858B95] mb-6">
                     Select this time slot to reserve your spot for the session. 
-                    You'll receive a confirmation email with all the details.
+                    You&apos;ll receive a confirmation email with all the details.
                   </p>
                   <button className="w-full py-4 bg-gradient-to-r from-[#C15364] to-[#858B95] text-white rounded-xl hover:shadow-xl transition-all duration-300 font-semibold flex items-center justify-center">
                     <CheckCircle className="w-6 h-6 mr-2" />

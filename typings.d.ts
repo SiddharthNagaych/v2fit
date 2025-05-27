@@ -83,6 +83,35 @@ interface CartState {
   lastSynced: number | null;
   status: 'idle' | 'syncing' | 'error';
   error: string | null;
+   expiresAt?: number;
 }
+interface RazorpayPrefill {
+  name: string;
+  email: string;
+  contact?: string;
+}
+
+interface RazorpayTheme {
+  color: string;
+}
+
+interface RazorpayModal {
+  ondismiss: () => void;
+}
+
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  image?: string;
+  order_id: string;
+  handler: (response: RazorpayResponse) => void;
+  prefill?: RazorpayPrefill;
+  theme?: RazorpayTheme;
+  modal?: RazorpayModal;
+}
+
 
 

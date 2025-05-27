@@ -1,6 +1,6 @@
 // components/GymSection.tsx
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
   Dumbbell, 
   Wifi, 
@@ -22,7 +22,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 
-import { AnimatedCard, GlassCard } from './shared/index';
+import { AnimatedCard } from './shared/index';
 
 interface Gym {
   id: number;
@@ -41,12 +41,10 @@ interface AmenityIcons {
 }
 
 const GymSection: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [hoveredGym, setHoveredGym] = useState<number | null>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
-
+ const [currentIndex, setCurrentIndex] = useState(0);
+const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+const containerRef = useRef<HTMLDivElement>(null);
   const gyms: Gym[] = [
     {
       id: 1,
@@ -257,8 +255,7 @@ const GymSection: React.FC = () => {
                     translateY(${(mousePosition.y - 0.5) * -20}px)
                   `
                 }}
-                onMouseEnter={() => setHoveredGym(currentGym.id)}
-                onMouseLeave={() => setHoveredGym(null)}
+                
               >
                 <div className="relative group cursor-pointer" onClick={() => handleGymClick(currentGym.id)}>
                   {/* Glowing border effect */}

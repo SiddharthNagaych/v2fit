@@ -1,18 +1,33 @@
-// store/transforms.ts
 import { createTransform } from 'redux-persist';
+// Adjust path as needed
 
-export const expireTransform = createTransform(
-  (inboundState: any, key) => {
-    return {
-      ...inboundState,
-      expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days from now
-    };
-  },
-  (outboundState: any, key) => {
-    if (outboundState.expiresAt && Date.now() > outboundState.expiresAt) {
-      return { items: [], total: 0 }; // Clear expired cart
+// Extend CartState with expiresAt for persistence purposes only
+type PersistedCartState = CartState & { expiresAt?: number };
+
+export const expireTransform = createTransform<CartState, PersistedCartState>(
+  (inboundState) => ({
+    ...inboundState,
+    expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days from now
+  }),
+
+  (outboundState) => {
+    const { expiresAt, ...rest } = outboundState;
+    if (expiresAt && Date.now() > expiresAt) {
+      return {
+        items: [],
+        totalItems: 0,
+        totalAmount: 0,
+        appliedPromo: null,
+        discountAmount: 0,
+        isOpen: false,
+        lastSynced: null,
+        status: 'idle',
+        error: null,
+      };
     }
-    return outboundState;
+
+    return rest as CartState;
   },
   { whitelist: ['cart'] }
 );
+

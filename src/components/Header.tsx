@@ -4,10 +4,11 @@ import React, { useState } from "react";
 import { Menu, X, UserCircle } from "lucide-react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image"; // Added
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { data: session, status } = useSession();
+  const { status } = useSession(); // Removed unused `session`
 
   const navigationItems = [
     { href: "/programs", label: "Programs" },
@@ -22,7 +23,7 @@ const Header: React.FC = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3">
-            <img src="/logo1.png" alt="V21 Fit Logo" width={120} height={120} />
+            <Image src="/logo1.png" alt="V21 Fit Logo" width={120} height={120} />
           </Link>
 
           {/* Desktop Nav */}

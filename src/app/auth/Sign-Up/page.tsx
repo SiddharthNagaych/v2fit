@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import {
   User,
-  Mail,
   Lock,
   Eye,
   EyeOff,
@@ -129,8 +128,6 @@ export default function SignupForm() {
       }
       }
 
-      const data = await res.json();
-      
       // Show success toast
       toast.success('Account created successfully! Redirecting...', {
         duration: 3000,
@@ -144,9 +141,10 @@ export default function SignupForm() {
         router.push('/home');
       }, 3000);
 
-    } catch (error:any) {
+    } catch (error) {
       console.error('Registration error:', error);
-      toast.error(error.message || 'Registration failed');
+      const errorMessage = error instanceof Error ? error.message : 'Registration failed';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -163,7 +161,7 @@ export default function SignupForm() {
             </div>
             <h2 className="text-2xl font-bold text-white mb-4">Registration Successful!</h2>
             <p className="text-slate-300 mb-6">
-              Your account has been created successfully. You'll be redirected shortly.
+              Your account has been created successfully. You&apos;ll be redirected shortly.
             </p>
             <div className="flex justify-center">
               <div className="w-12 h-12 border-4 border-green-400 border-t-transparent rounded-full animate-spin"></div>
@@ -233,7 +231,7 @@ export default function SignupForm() {
               </div>
               <div>
                 <h3 className="text-white font-semibold">24/7 Support</h3>
-                <p className="text-slate-400 text-sm">We're here to help</p>
+                <p className="text-slate-400 text-sm">We&apos;re here to help</p>
               </div>
             </div>
           </div>

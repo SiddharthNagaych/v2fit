@@ -184,6 +184,7 @@ const GymDetailsPage: React.FC = () => {
     if (gymId) {
       fetchGymDetails();
     }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gymId]);
 
   const handleBack = () => {
@@ -225,7 +226,7 @@ const GymDetailsPage: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Gym Not Found</h1>
-          <p className="text-xl text-[#858B95] mb-8">The gym you're looking for doesn't exist.</p>
+          <p className="text-xl text-[#858B95] mb-8">The gym you&apos;re looking for doesn&apos;t exist.</p>
           <button 
             onClick={handleBack}
             className="px-6 py-3 bg-gradient-to-r from-[#C15364] to-[#858B95] text-white rounded-lg hover:shadow-lg transition-all duration-300"

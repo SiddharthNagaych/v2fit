@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import Image from 'next/image';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -38,10 +39,11 @@ export default function SignInPage() {
         router.push('/home');
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Sign in error:', error);
-      setError(error.message || 'Invalid credentials');
-      toast.error(error.message || 'Sign in failed');
+      const errorMessage = error instanceof Error ? error.message : 'Invalid credentials';
+      setError(errorMessage);
+      toast.error(errorMessage || 'Sign in failed');
     } finally {
       setIsLoading(false);
     }
@@ -153,14 +155,14 @@ export default function SignInPage() {
             disabled={isLoading}
             className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-rose-500 to-slate-500 text-white rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
           >
-            <img src="https://img.icons8.com/stamp/32/F25081/google-logo.png" alt="Google" className="w-5 h-5" />
+            <Image src="https://img.icons8.com/stamp/32/F25081/google-logo.png" alt="Google" width={20} height={20} className="w-5 h-5" />
             <span>Sign in with Google</span>
           </button>
 
           {/* Sign Up Link */}
           <div className="mt-8 pt-6 border-t border-white/10 text-center">
             <p className="text-slate-400 text-sm">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <a
                 href="/auth/Sign-Up"
                 className="text-rose-400 hover:text-rose-300 font-medium transition-colors"

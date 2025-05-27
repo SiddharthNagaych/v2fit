@@ -57,7 +57,7 @@ function getEmailFromPhoneEmailJson(url: string): Promise<string> {
             return reject('Missing user_email_id in JSON');
           }
           resolve(json.user_email_id);
-        } catch (e) {
+        } catch {
           reject('Invalid JSON structure');
         }
       });

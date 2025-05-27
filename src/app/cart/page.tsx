@@ -2,21 +2,7 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch, store } from "@/store";
-import {
-  ShoppingCart,
-  Trash2,
-  Plus,
-  Minus,
-  Star,
-  Clock,
-  ArrowLeft,
-  CreditCard,
-  Lock,
-  Tag,
-  CheckCircle,
-  Gift,
-  X,
-} from "lucide-react";
+import { ShoppingCart, Trash2, Plus, Minus, X } from "lucide-react";
 import {
   removeFromCart,
   updateQuantity,
@@ -26,18 +12,36 @@ import {
 } from "@/store/slices/cartSlice";
 import { useSession } from "next-auth/react";
 
+interface RazorpayOrder {
+  id: string;
+  amount: number;
+  currency: string;
+}
+
+interface RazorpayResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
+declare global {
+  interface Window {
+    Razorpay: new (options: RazorpayOptions
+    ) => {
+      open: () => void;
+    };
+  }
+}
+
+
 const CartPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { data: session } = useSession();
 
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const subtotal = useSelector((state: RootState) => state.cart.totalAmount);
-  const appliedPromo = useSelector(
-    (state: RootState) => state.cart.appliedPromo
-  );
-  const discountAmount = useSelector(
-    (state: RootState) => state.cart.discountAmount
-  );
+  const appliedPromo = useSelector((state: RootState) => state.cart.appliedPromo);
+  const discountAmount = useSelector((state: RootState) => state.cart.discountAmount);
 
   const [promoCode, setPromoCode] = useState("");
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -52,9 +56,9 @@ const CartPage: React.FC = () => {
   const handleUpdateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity === 0) {
       dispatch(removeFromCart(id));
-      return;
+    } else {
+      dispatch(updateQuantity({ id, quantity: newQuantity }));
     }
-    dispatch(updateQuantity({ id, quantity: newQuantity }));
   };
 
   const handleRemoveItem = (id: string) => {
@@ -72,8 +76,8 @@ const CartPage: React.FC = () => {
 
   const loadRazorpayScript = (): Promise<boolean> => {
     return new Promise((resolve) => {
-      if (typeof window !== "undefined" && (window as any).Razorpay) {
-        resolve(true); // Already loaded
+      if (typeof window !== "undefined" && window.Razorpay) {
+        resolve(true);
         return;
       }
 
@@ -85,39 +89,28 @@ const CartPage: React.FC = () => {
     });
   };
 
-  const checkoutHandler = async (amount: number, userEmail: string) => {
+  const checkoutHandler = async (amount: number) => {
     const isScriptLoaded = await loadRazorpayScript();
     if (!isScriptLoaded) {
-      alert("Failed to load Razorpay SDK. Please check your internet connection.");
+      alert("Failed to load Razorpay SDK.");
       return;
     }
 
     try {
-      // First, sync the local cart to database
       const cartState = store.getState().cart;
-      
-      const syncResponse = await fetch('/api/cart/sync-for-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          items: cartState.items,
-          totalItems: cartState.totalItems,
-          totalAmount: cartState.totalAmount,
-          appliedPromo: cartState.appliedPromo,
-          discountAmount: cartState.discountAmount
-        })
+
+      const syncResponse = await fetch("/api/cart/sync-for-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cartState),
       });
 
-      if (!syncResponse.ok) {
-        throw new Error('Failed to sync cart');
-      }
+      if (!syncResponse.ok) throw new Error("Failed to sync cart");
 
       const orderResponse = await fetch("/api/razorpay/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: Math.round(amount) }), // Razorpay uses paise
+        body: JSON.stringify({ amount: Math.round(amount) }),
       });
 
       if (!orderResponse.ok) {
@@ -125,9 +118,9 @@ const CartPage: React.FC = () => {
         throw new Error(errorData.message || "Failed to create Razorpay order");
       }
 
-      const { order } = await orderResponse.json();
-      
-      if (!session || !session.user?.id || !session.user?.email) {
+      const { order }: { order: RazorpayOrder } = await orderResponse.json();
+
+      if (!session?.user?.id || !session?.user?.email) {
         alert("Please sign in to complete your purchase");
         return;
       }
@@ -140,16 +133,14 @@ const CartPage: React.FC = () => {
         description: "Purchase Program",
         image: "/logo.png",
         order_id: order.id,
-        handler: async function (response: any) {
+        handler: async function (response: RazorpayResponse) {
           try {
             const verifyRes = await fetch("/api/razorpay/verify", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                userId: session.user?.id,
+                ...response,
+                userId: session.user.id,
               }),
             });
 
@@ -157,32 +148,27 @@ const CartPage: React.FC = () => {
             if (data.success) {
               window.location.href = "/purchase-success";
             } else {
-              alert("Payment verification failed. Please contact support.");
+              alert("Payment verification failed.");
             }
           } catch (err) {
             console.error("Verification failed", err);
-            alert("Payment verification error. Please contact support.");
+            alert("Payment verification error.");
           }
         },
         prefill: {
-          name: session.user?.name || "",
-          email: session.user?.email || "",
+          name: session.user.name || "",
+          email: session.user.email || "",
         },
-        theme: {
-          color: "#6366f1",
-        },
+        theme: { color: "#6366f1" },
         modal: {
-          ondismiss: () => {
-            console.log("Checkout closed by user");
-          },
+          ondismiss: () => console.log("Checkout closed by user"),
         },
       };
 
-      const rzp = new (window as any).Razorpay(options);
+      const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      console.error("Checkout failed", err);
-      throw err; // Re-throw to handle in the calling function
+      console.error("Checkout error:", err);
     }
   };
 
@@ -194,7 +180,7 @@ const CartPage: React.FC = () => {
 
     setIsCheckingOut(true);
     try {
-      await checkoutHandler(finalTotal, session.user.email);
+      await checkoutHandler(finalTotal);
       dispatch(clearCart());
     } catch (error) {
       console.error("Checkout failed:", error);
@@ -204,6 +190,7 @@ const CartPage: React.FC = () => {
     }
   };
 
+  // Empty Cart UI
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
