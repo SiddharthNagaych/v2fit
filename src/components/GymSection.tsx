@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 
 import { AnimatedCard } from "./shared/index";
+import Image from "next/image";
 
 interface Gym {
   _id: { $oid: string };
@@ -295,7 +296,7 @@ const GymSection: React.FC = () => {
                       <div className="relative h-48 md:h-80 bg-gradient-to-br from-[#C15364]/20 via-[#868C96]/30 to-[#858B95]/20 rounded-xl md:rounded-2xl overflow-hidden group-hover:scale-105 transition-transform duration-700">
                         {/* Actual gym image */}
                         {currentGym.images && currentGym.images.length > 0 ? (
-                          <img
+                          <Image
                             src={currentGym.images[0]}
                             alt={currentGym.name}
                             className="w-full h-full object-cover"
@@ -442,7 +443,7 @@ const GymSection: React.FC = () => {
                   >
                     <div className="h-40 bg-gradient-to-br from-[#858B95]/20 to-[#C15364]/20 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
                       {prevGym.images && prevGym.images.length > 0 ? (
-                        <img
+                        <Image
                           src={prevGym.images[0]}
                           alt={prevGym.name}
                           className="w-full h-full object-cover"
@@ -474,7 +475,7 @@ const GymSection: React.FC = () => {
                   >
                     <div className="h-40 bg-gradient-to-br from-[#C15364]/20 to-[#858B95]/20 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
                       {nextGym.images && nextGym.images.length > 0 ? (
-                        <img
+                        <Image
                           src={nextGym.images[0]}
                           alt={nextGym.name}
                           className="w-full h-full object-cover"
