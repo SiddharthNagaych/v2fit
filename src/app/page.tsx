@@ -14,15 +14,15 @@ import Profile from '@/components/profile/Profile';
 const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+    
       <HeroSection />
       <ScheduleSection />
       <ProgramsSection />
       <GymSection />
       
       <CTASection />
-      <Footer />
-      <Profile />
+  
+      
       
     </div>
   );
