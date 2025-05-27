@@ -149,3 +149,16 @@ model PurchasedProgram {
   user    User    @relation(fields: [userId], references: [id])
   program Product @relation(fields: [programId], references: [id])
 }
+
+model Gym {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  location  String
+  amenities String[]
+  images    String[]
+  rating    Float
+  programs  String[]
+  highlight String
+  members   Int
+}
+
