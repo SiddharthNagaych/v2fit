@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Menu, X, UserCircle } from "lucide-react";
+import { Menu, X, UserCircle, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
-import Image from "next/image"; // Added
+import Image from "next/image";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { status } = useSession(); // Removed unused `session`
+  const { data: session, status } = useSession();
 
   const navigationItems = [
     { href: "/programs", label: "Programs" },
@@ -39,33 +39,45 @@ const Header: React.FC = () => {
             ))}
           </div>
 
-          {/* Auth Buttons */}
-          {status === "authenticated" ? (
-            <div className="hidden md:flex items-center space-x-4">
-              <Link href="/profile">
-                <UserCircle className="w-7 h-7 text-[#C15364] hover:text-[#ffffff]" />
-              </Link>
-              <button
-                className="px-4 py-2 text-[#858B95] hover:text-[#C15364] transition-colors duration-300"
-                onClick={() => signOut()}
-              >
-                Sign Out
-              </button>
-            </div>
-          ) : (
-            <div className="hidden md:flex items-center space-x-4">
-              <Link href="/auth/Sign-In">
-                <button className="px-4 py-2 text-[#858B95] hover:text-[#C15364] transition-colors duration-300">
-                  Sign In
+          {/* Right Icons (Desktop) */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Link href="/cart">
+              <ShoppingCart className="w-6 h-6 text-[#C15364] hover:text-white transition-colors" />
+            </Link>
+            {status === "authenticated" ? (
+              <>
+                {session?.user?.role === "ADMIN" && (
+                  <Link href="/admin/dashboard">
+                    <button className="px-4 py-2 text-[#C15364] hover:text-white transition-colors duration-300">
+                      Admin Panel
+                    </button>
+                  </Link>
+                )}
+                <Link href="/profile">
+                  <UserCircle className="w-7 h-7 text-[#C15364] hover:text-white" />
+                </Link>
+                <button
+                  className="px-4 py-2 text-[#858B95] hover:text-[#C15364] transition-colors duration-300"
+                  onClick={() => signOut()}
+                >
+                  Sign Out
                 </button>
-              </Link>
-              <Link href="/auth/Sign-Up">
-                <button className="px-6 py-2 bg-gradient-to-r from-[#C15364] to-[#858B95] text-white rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                  Get Started
-                </button>
-              </Link>
-            </div>
-          )}
+              </>
+            ) : (
+              <>
+                <Link href="/auth/Sign-In">
+                  <button className="px-4 py-2 text-[#858B95] hover:text-[#C15364] transition-colors duration-300">
+                    Sign In
+                  </button>
+                </Link>
+                <Link href="/auth/Sign-Up">
+                  <button className="px-6 py-2 bg-gradient-to-r from-[#C15364] to-[#858B95] text-white rounded-full hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                    Get Started
+                  </button>
+                </Link>
+              </>
+            )}
+          </div>
 
           {/* Mobile Toggle */}
           <button
@@ -90,15 +102,41 @@ const Header: React.FC = () => {
                   {item.label}
                 </Link>
               ))}
+
+              {/* Cart link for mobile */}
+              <Link
+                href="/cart"
+                className="flex items-center space-x-2 px-2 py-1 text-[#858B95] hover:text-[#C15364]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <ShoppingCart className="w-5 h-5" />
+                <span>Cart</span>
+              </Link>
+
               {status === "authenticated" ? (
-                <button
-                  onClick={() => signOut()}
-                  className="mt-4 px-6 py-2 bg-red-500 text-white rounded-full"
-                >
-                  Sign Out
-                </button>
+                <>
+                  {session?.user?.role === "ADMIN" && (
+                    <Link href="/admin/dashboard">
+                      <button
+                        className="px-4 py-2 text-[#C15364] hover:text-white transition-colors duration-300"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Admin Panel
+                      </button>
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      signOut();
+                    }}
+                    className="mt-4 px-6 py-2 bg-red-500 text-white rounded-full"
+                  >
+                    Sign Out
+                  </button>
+                </>
               ) : (
-                <Link href="/auth/signin">
+                <Link href="/auth/Sign-Up">
                   <button className="mt-4 px-6 py-2 bg-gradient-to-r from-[#C15364] to-[#858B95] text-white rounded-full">
                     Get Started
                   </button>

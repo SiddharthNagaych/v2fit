@@ -304,6 +304,10 @@ const GymSection: React.FC = () => {
                               // Fallback to placeholder if image fails to load
                               e.currentTarget.style.display = 'none';
                             }}
+                            height={300}
+                            width={400}
+                            loading="lazy"
+                            unoptimized
                           />
                         ) : (
                           // Fallback placeholder
@@ -450,6 +454,10 @@ const GymSection: React.FC = () => {
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}
+                          height={600}
+                          width={400}
+                          loading="lazy"
+
                         />
                       ) : (
                         <Camera className="w-12 h-12 text-white/60" />
@@ -482,6 +490,9 @@ const GymSection: React.FC = () => {
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                           }}
+                          height={200}
+                          width={200}
+                          loading='lazy'
                         />
                       ) : (
                         <Camera className="w-12 h-12 text-white/60" />

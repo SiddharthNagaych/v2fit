@@ -1,4 +1,3 @@
-// auth.config.ts
 import { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
@@ -12,9 +11,7 @@ const authConfig: NextAuthConfig = {
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
-    
-),
+    }),
     Credentials({
       credentials: {
         email: {},
@@ -22,22 +19,33 @@ const authConfig: NextAuthConfig = {
       },
       async authorize(credentials) {
         const { email, password } = credentials as any;
-        if (!email || !password) return null;
+
+        if (!email || !password) {
+          throw new Error("Email and password are required");
+        }
 
         const user = await prisma.user.findUnique({ where: { email } });
 
-        if (!user || !user.password) return null;
+        if (!user) {
+          throw new Error("No user found with this email");
+        }
 
+        if (!user.password) {
+          throw new Error("Password is not set for this user");
+        }
+
+        // Ensure password is not null before calling bcrypt.compare
         const isValid = await bcrypt.compare(password, user.password);
-        if (!isValid) return null;
+        if (!isValid) {
+          throw new Error("Invalid password");
+        }
 
-        // ✅ Explicitly return only required user fields
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           image: user.image,
-          role: user.role, // 👈 Make sure role is returned
+          role: user.role,
         };
       },
     }),
@@ -64,6 +72,12 @@ const authConfig: NextAuthConfig = {
         (session.user as any).role = token.role;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      return baseUrl + "/"; // Replace '/dashboard' with your desired path
     },
   },
   pages: {
