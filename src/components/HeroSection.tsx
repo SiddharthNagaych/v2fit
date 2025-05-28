@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 const AnimatedCard = ({ children: children, delay = 0 }: { children: React.ReactNode, delay?: number }) => {
   return (
@@ -16,9 +17,20 @@ export default function HeroSection() {
     <>
       
       
-      <section className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center">
+      <section className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center mt-2">
         {/* Background gradient overlay */}
-        <div className="absolute inset-0 bg-[url('/gym5.webp')] bg-cover bg-center"></div>
+       <div className="absolute inset-0">
+        <Image
+          src="/gym5.webp"
+          alt="Fitness background"
+          layout="fill"
+          objectFit="cover"
+          quality={75}
+          priority={false} // This enables lazy loading
+          className="opacity-70"
+          loading='lazy'
+        />
+      </div>
         
        
         
