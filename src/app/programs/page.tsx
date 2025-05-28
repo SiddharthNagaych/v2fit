@@ -52,12 +52,99 @@ interface CartItem {
   category: string;
   quantity: number;
 }
+
+// Skeleton Card Component
+const SkeletonCard: React.FC<{ viewMode: "grid" | "list" }> = ({ viewMode }) => {
+  return (
+    <div
+      className={`group relative bg-gradient-to-br from-gray-900/80 to-black/90 backdrop-blur-md rounded-2xl border border-[#868B96]/20 overflow-hidden animate-pulse ${
+        viewMode === "list" ? "flex" : ""
+      }`}
+    >
+      {/* Image Section Skeleton */}
+      <div
+        className={`relative overflow-hidden ${
+          viewMode === "list" ? "w-80 flex-shrink-0" : "aspect-video"
+        }`}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-800/50 via-gray-700/50 to-gray-800/50 animate-pulse" />
+        
+        {/* Shimmer effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" />
+        
+        {/* Placeholder badges */}
+        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+          <div className="w-16 h-6 bg-gray-700/50 rounded-full animate-pulse" />
+        </div>
+        
+        {/* Placeholder heart */}
+        <div className="absolute top-4 right-4 w-10 h-10 bg-gray-700/50 rounded-full animate-pulse" />
+        
+        {/* Placeholder level badge */}
+        <div className="absolute bottom-4 left-4 w-20 h-6 bg-gray-700/50 rounded-full animate-pulse" />
+      </div>
+
+      {/* Content Section Skeleton */}
+      <div className="p-6 flex-1">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1">
+            {/* Title skeleton */}
+            <div className="w-48 h-6 bg-gray-700/50 rounded animate-pulse mb-2" />
+            {/* Instructor skeleton */}
+            <div className="w-32 h-4 bg-gray-700/50 rounded animate-pulse mb-1" />
+            {/* Category skeleton */}
+            <div className="w-24 h-4 bg-gray-700/50 rounded animate-pulse" />
+          </div>
+          <div className="text-right">
+            {/* Price skeleton */}
+            <div className="w-16 h-8 bg-gray-700/50 rounded animate-pulse" />
+          </div>
+        </div>
+
+        {/* Description skeleton */}
+        <div className="space-y-2 mb-4">
+          <div className="w-full h-4 bg-gray-700/50 rounded animate-pulse" />
+          <div className="w-3/4 h-4 bg-gray-700/50 rounded animate-pulse" />
+        </div>
+
+        {/* Stats skeleton */}
+        <div className="flex items-center space-x-4 mb-4">
+          <div className="w-16 h-4 bg-gray-700/50 rounded animate-pulse" />
+          <div className="w-16 h-4 bg-gray-700/50 rounded animate-pulse" />
+          <div className="w-16 h-4 bg-gray-700/50 rounded animate-pulse" />
+        </div>
+
+        {/* Features skeleton */}
+        <div className="mb-6 flex flex-wrap gap-2">
+          <div className="w-20 h-6 bg-gray-700/50 rounded-lg animate-pulse" />
+          <div className="w-24 h-6 bg-gray-700/50 rounded-lg animate-pulse" />
+          <div className="w-16 h-6 bg-gray-700/50 rounded-lg animate-pulse" />
+        </div>
+
+        {/* Buttons skeleton */}
+        <div className="flex space-x-3">
+          <div className="flex-1 h-12 bg-gray-700/50 rounded-xl animate-pulse" />
+          <div className="w-12 h-12 bg-gray-700/50 rounded-xl animate-pulse" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ProgramsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state: RootState) => state.favorites.items);
   const cartItems = useAppSelector((state: RootState) => state.cart.items);
 
-  
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [filteredPrograms, setFilteredPrograms] = useState<Program[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedLevel, setSelectedLevel] = useState("All");
+  const [sortBy, setSortBy] = useState("popular");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [showFilters, setShowFilters] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleAddToCart = (program: Program) => {
     const cartItem: Omit<CartItem, "quantity"> = {
@@ -74,25 +161,15 @@ const ProgramsPage: React.FC = () => {
     dispatch(addToCart(cartItem));
   };
 
-const isInCart = (programId: string) => {
-  return Array.isArray(cartItems) && cartItems.some((item) => item.id === programId);
-};
+  const isInCart = (programId: string) => {
+    return Array.isArray(cartItems) && cartItems.some((item) => item.id === programId);
+  };
 
-
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [filteredPrograms, setFilteredPrograms] = useState<Program[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedLevel, setSelectedLevel] = useState("All");
-  const [sortBy, setSortBy] = useState("popular");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [showFilters, setShowFilters] = useState(false);
-
-  // Mock data - replace with API call
-
+  // Fetch programs with loading state
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
+        setIsLoading(true);
         const res = await fetch("/api/programs");
         if (!res.ok) {
           throw new Error("Failed to fetch programs");
@@ -103,6 +180,11 @@ const isInCart = (programId: string) => {
         setFilteredPrograms(data);
       } catch (error) {
         console.error("Error fetching programs:", error);
+      } finally {
+        // Add minimum loading time to show skeleton
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 800);
       }
     };
 
@@ -111,6 +193,8 @@ const isInCart = (programId: string) => {
 
   // Filter and search logic
   useEffect(() => {
+    if (isLoading) return;
+
     let filtered = programs;
 
     if (searchTerm) {
@@ -154,7 +238,7 @@ const isInCart = (programId: string) => {
     }
 
     setFilteredPrograms(filtered);
-  }, [programs, searchTerm, selectedCategory, selectedLevel, sortBy]);
+  }, [programs, searchTerm, selectedCategory, selectedLevel, sortBy, isLoading]);
 
   const categories = [
     "All",
@@ -167,7 +251,7 @@ const isInCart = (programId: string) => {
   ];
   const levels = ["All", "Beginner", "Intermediate", "Advanced"];
 
-return (
+  return (
     <div className="min-h-screen bg-black">
       <style jsx>{`
         @keyframes glow {
@@ -195,6 +279,19 @@ return (
         .float-animation {
           animation: float 3s ease-in-out infinite;
         }
+
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
       `}</style>
 
       {/* Header Section */}
@@ -218,7 +315,11 @@ return (
             <div className="flex justify-center space-x-8 mb-8">
               <div className="text-center bg-gradient-to-br from-gray-900/50 to-black/80 backdrop-blur-sm rounded-2xl p-4 border border-[#C15364]/20">
                 <div className="text-2xl font-bold text-[#C15364]">
-                  {programs.length}+
+                  {isLoading ? (
+                    <div className="w-8 h-6 bg-gray-700/50 rounded animate-pulse mx-auto" />
+                  ) : (
+                    `${programs.length}+`
+                  )}
                 </div>
                 <div className="text-gray-400 text-sm">Programs</div>
               </div>
@@ -244,6 +345,7 @@ return (
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 bg-black/60 border border-[#868B96]/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#C15364]/50 text-lg transition-colors"
+                disabled={isLoading}
               />
             </div>
 
@@ -252,6 +354,7 @@ return (
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-[#C15364]/20 to-[#868B96]/20 border border-[#C15364]/50 rounded-lg text-white hover:from-[#C15364]/30 hover:to-[#868B96]/30 transition-all"
+                disabled={isLoading}
               >
                 <Filter className="w-4 h-4" />
                 <span>Filters</span>
@@ -264,6 +367,7 @@ return (
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="px-4 py-3 bg-black/60 border border-[#868B96]/30 rounded-xl text-white focus:border-[#C15364]/50 focus:outline-none transition-colors"
+                disabled={isLoading}
               >
                 {categories.map((category) => (
                   <option key={category} value={category} className="bg-black">
@@ -276,6 +380,7 @@ return (
                 value={selectedLevel}
                 onChange={(e) => setSelectedLevel(e.target.value)}
                 className="px-4 py-3 bg-black/60 border border-[#868B96]/30 rounded-xl text-white focus:border-[#C15364]/50 focus:outline-none transition-colors"
+                disabled={isLoading}
               >
                 {levels.map((level) => (
                   <option key={level} value={level} className="bg-black">
@@ -288,6 +393,7 @@ return (
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="px-4 py-3 bg-black/60 border border-[#868B96]/30 rounded-xl text-white focus:border-[#C15364]/50 focus:outline-none transition-colors"
+                disabled={isLoading}
               >
                 <option value="popular" className="bg-black">Most Popular</option>
                 <option value="newest" className="bg-black">Newest</option>
@@ -306,6 +412,7 @@ return (
                         ? "bg-gradient-to-r from-[#C15364] to-[#868B96] text-white"
                         : "text-gray-400 hover:text-white"
                     }`}
+                    disabled={isLoading}
                   >
                     <div className="w-5 h-5 grid grid-cols-2 gap-0.5">
                       <div className="bg-current rounded-sm"></div>
@@ -321,6 +428,7 @@ return (
                         ? "bg-gradient-to-r from-[#C15364] to-[#868B96] text-white"
                         : "text-gray-400 hover:text-white"
                     }`}
+                    disabled={isLoading}
                   >
                     <div className="w-5 h-5 flex flex-col justify-center space-y-1">
                       <div className="h-0.5 bg-current rounded"></div>
@@ -334,18 +442,27 @@ return (
 
             {/* Results Count */}
             <div className="flex justify-between items-center mt-6 pt-4 border-t border-[#868B96]/20">
-              <p className="text-gray-300">
-                Showing{" "}
-                <span className="text-[#C15364] font-semibold">
-                  {filteredPrograms.length}
-                </span>{" "}
-                of{" "}
-                <span className="text-[#C15364] font-semibold">
-                  {programs.length}
-                </span>{" "}
-                programs
-              </p>
-              {searchTerm && (
+              <h1 className="text-gray-300">
+                {isLoading ? (
+                  <div className="flex items-center space-x-2">
+                    <span>Loading programs...</span>
+                    <div className="w-4 h-4 border-2 border-[#C15364]/30 border-t-[#C15364] rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  <>
+                    Showing{" "}
+                    <span className="text-[#C15364] font-semibold">
+                      {filteredPrograms.length}
+                    </span>{" "}
+                    of{" "}
+                    <span className="text-[#C15364] font-semibold">
+                      {programs.length}
+                    </span>{" "}
+                    programs
+                  </>
+                )}
+              </h1>
+              {searchTerm && !isLoading && (
                 <button
                   onClick={() => setSearchTerm("")}
                   className="text-[#868B96] hover:text-white text-sm transition-colors"
@@ -360,7 +477,21 @@ return (
 
       {/* Programs Grid */}
       <div className="container mx-auto px-6 pb-20">
-        {filteredPrograms.length === 0 ? (
+        {isLoading ? (
+          // Skeleton Loading State
+          <div
+            className={
+              viewMode === "grid"
+                ? "grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+                : "space-y-6"
+            }
+          >
+            {Array.from({ length: 6 }).map((_, index) => (
+              <SkeletonCard key={index} viewMode={viewMode} />
+            ))}
+          </div>
+        ) : filteredPrograms.length === 0 ? (
+          // No Programs Found State
           <div className="text-center py-20">
             <div className="w-24 h-24 bg-gradient-to-br from-[#C15364]/20 to-[#868B96]/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-[#C15364]/30">
               <Search className="w-12 h-12 text-[#C15364]" />
@@ -383,6 +514,7 @@ return (
             </button>
           </div>
         ) : (
+          // Programs Grid
           <div
             className={
               viewMode === "grid"
@@ -440,7 +572,6 @@ return (
 
                   {/* Favorite button */}
                   <button
-                   
                     className="absolute top-4 right-4 p-2 bg-black/50 backdrop-blur-sm rounded-full hover:bg-[#C15364]/20 transition-colors z-10"
                   >
                     <Heart

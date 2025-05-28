@@ -17,7 +17,7 @@ export default function HeroSection() {
     <>
       
       
-      <section className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center mt-2">
+      <section className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center mt-4">
         {/* Background gradient overlay */}
        <div className="absolute inset-0">
         <Image

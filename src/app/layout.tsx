@@ -19,7 +19,7 @@ export default function RootLayout({
         <body className={` antialiased`}>
           <ReduxProvider >
             <Header />
-            <main className="pt-16 mt-1">{children}</main>
+            <main className="pt-16 mt-4 bg-black">{children}</main>
            
             <Toaster position="bottom-right" reverseOrder={false} />
             <Footer />
