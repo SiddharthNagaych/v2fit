@@ -18,7 +18,7 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <header className="fixed w-full top-0 z-50 bg-[#1A1D23]/90 backdrop-blur-md shadow-sm border-b border-white/10">
+    <header className="fixed w-full top-0 z-50 bg-black">
       <nav className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}

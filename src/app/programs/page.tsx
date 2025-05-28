@@ -10,12 +10,15 @@ import {
   Heart,
   Play,
   Eye,
+  Flame,
+  Trophy,
+  Target,
 } from "lucide-react";
 
 import { RootState} from "@/store";
 
 import { useAppDispatch, useAppSelector } from "@/hooks";
-import { toggleFavorite } from "@/store/slices/favoritesSlice";
+
 import { addToCart } from "@/store/slices/cartSlice";
 
 interface Program {
@@ -153,10 +156,6 @@ const isInCart = (programId: string) => {
     setFilteredPrograms(filtered);
   }, [programs, searchTerm, selectedCategory, selectedLevel, sortBy]);
 
-  const handleToggleFavorite = (programId: string) => {
-    dispatch(toggleFavorite(programId));
-  };
-
   const categories = [
     "All",
     "Weight Loss",
@@ -168,54 +167,83 @@ const isInCart = (programId: string) => {
   ];
   const levels = ["All", "Beginner", "Intermediate", "Advanced"];
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+return (
+    <div className="min-h-screen bg-black">
+      <style jsx>{`
+        @keyframes glow {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(193, 83, 100, 0.3);
+          }
+          50% {
+            box-shadow: 0 0 30px rgba(193, 83, 100, 0.5);
+          }
+        }
+        
+        .glow-effect {
+          animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-5px);
+          }
+        }
+
+        .float-animation {
+          animation: float 3s ease-in-out infinite;
+        }
+      `}</style>
+
       {/* Header Section */}
       <div className="relative pt-24 pb-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-rose-500/10 via-transparent to-slate-500/10" />
+        <div className="absolute inset-0 bg-black" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#C15364]/10 via-transparent to-[#868B96]/10" />
+        
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-12">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
               Fitness{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-slate-400">
+              <span className="bg-gradient-to-r from-[#C15364] to-[#868B96] bg-clip-text text-transparent">
                 Programs
               </span>
             </h1>
-            <p className="text-slate-400 text-xl max-w-3xl mx-auto mb-8">
-              Transform your body and mind with our expertly designed fitness
-              programs
+            <p className="text-gray-300 text-xl max-w-3xl mx-auto mb-8">
+              Transform your body and mind with our expertly designed fitness programs
             </p>
 
             {/* Quick Stats */}
             <div className="flex justify-center space-x-8 mb-8">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">
+              <div className="text-center bg-gradient-to-br from-gray-900/50 to-black/80 backdrop-blur-sm rounded-2xl p-4 border border-[#C15364]/20">
+                <div className="text-2xl font-bold text-[#C15364]">
                   {programs.length}+
                 </div>
-                <div className="text-slate-400 text-sm">Programs</div>
+                <div className="text-gray-400 text-sm">Programs</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">15K+</div>
-                <div className="text-slate-400 text-sm">Students</div>
+              <div className="text-center bg-gradient-to-br from-gray-900/50 to-black/80 backdrop-blur-sm rounded-2xl p-4 border border-[#868B96]/20">
+                <div className="text-2xl font-bold text-[#868B96]">15K+</div>
+                <div className="text-gray-400 text-sm">Students</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">4.8★</div>
-                <div className="text-slate-400 text-sm">Average Rating</div>
+              <div className="text-center bg-gradient-to-br from-gray-900/50 to-black/80 backdrop-blur-sm rounded-2xl p-4 border border-[#C15364]/20">
+                <div className="text-2xl font-bold text-[#C15364]">4.8★</div>
+                <div className="text-gray-400 text-sm">Average Rating</div>
               </div>
             </div>
           </div>
 
           {/* Search and Filters */}
-          <div className="bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+          <div className="bg-gradient-to-br from-gray-900/60 to-black/80 backdrop-blur-md rounded-2xl p-6 border border-[#C15364]/20">
             {/* Main Search Bar */}
             <div className="relative mb-6">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#C15364] w-5 h-5" />
               <input
                 type="text"
                 placeholder="Search programs, instructors, or categories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-slate-900/50 border border-white/10 rounded-xl text-white placeholder-slate-400 focus:border-rose-400/50 focus:outline-none text-lg"
+                className="w-full pl-12 pr-4 py-4 bg-black/60 border border-[#868B96]/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-[#C15364]/50 text-lg transition-colors"
               />
             </div>
 
@@ -223,7 +251,7 @@ const isInCart = (programId: string) => {
             <div className="md:hidden mb-4">
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 px-4 py-2 bg-slate-900/50 border border-white/10 rounded-lg text-white"
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-[#C15364]/20 to-[#868B96]/20 border border-[#C15364]/50 rounded-lg text-white hover:from-[#C15364]/30 hover:to-[#868B96]/30 transition-all"
               >
                 <Filter className="w-4 h-4" />
                 <span>Filters</span>
@@ -231,22 +259,14 @@ const isInCart = (programId: string) => {
             </div>
 
             {/* Filters */}
-            <div
-              className={`grid md:grid-cols-4 gap-4 ${
-                showFilters ? "block" : "hidden md:grid"
-              }`}
-            >
+            <div className={`grid md:grid-cols-4 gap-4 ${showFilters ? "block" : "hidden md:grid"}`}>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white focus:border-rose-400/50 focus:outline-none"
+                className="px-4 py-3 bg-black/60 border border-[#868B96]/30 rounded-xl text-white focus:border-[#C15364]/50 focus:outline-none transition-colors"
               >
                 {categories.map((category) => (
-                  <option
-                    key={category}
-                    value={category}
-                    className="bg-slate-800"
-                  >
+                  <option key={category} value={category} className="bg-black">
                     {category}
                   </option>
                 ))}
@@ -255,10 +275,10 @@ const isInCart = (programId: string) => {
               <select
                 value={selectedLevel}
                 onChange={(e) => setSelectedLevel(e.target.value)}
-                className="px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white focus:border-rose-400/50 focus:outline-none"
+                className="px-4 py-3 bg-black/60 border border-[#868B96]/30 rounded-xl text-white focus:border-[#C15364]/50 focus:outline-none transition-colors"
               >
                 {levels.map((level) => (
-                  <option key={level} value={level} className="bg-slate-800">
+                  <option key={level} value={level} className="bg-black">
                     {level}
                   </option>
                 ))}
@@ -267,23 +287,13 @@ const isInCart = (programId: string) => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white focus:border-rose-400/50 focus:outline-none"
+                className="px-4 py-3 bg-black/60 border border-[#868B96]/30 rounded-xl text-white focus:border-[#C15364]/50 focus:outline-none transition-colors"
               >
-                <option value="popular" className="bg-slate-800">
-                  Most Popular
-                </option>
-                <option value="newest" className="bg-slate-800">
-                  Newest
-                </option>
-                <option value="price-low" className="bg-slate-800">
-                  Price: Low to High
-                </option>
-                <option value="price-high" className="bg-slate-800">
-                  Price: High to Low
-                </option>
-                <option value="rating" className="bg-slate-800">
-                  Highest Rated
-                </option>
+                <option value="popular" className="bg-black">Most Popular</option>
+                <option value="newest" className="bg-black">Newest</option>
+                <option value="price-low" className="bg-black">Price: Low to High</option>
+                <option value="price-high" className="bg-black">Price: High to Low</option>
+                <option value="rating" className="bg-black">Highest Rated</option>
               </select>
 
               {/* View Toggle */}
@@ -293,8 +303,8 @@ const isInCart = (programId: string) => {
                     onClick={() => setViewMode("grid")}
                     className={`p-2 rounded-lg transition-colors ${
                       viewMode === "grid"
-                        ? "bg-rose-500 text-white"
-                        : "text-slate-400 hover:text-white"
+                        ? "bg-gradient-to-r from-[#C15364] to-[#868B96] text-white"
+                        : "text-gray-400 hover:text-white"
                     }`}
                   >
                     <div className="w-5 h-5 grid grid-cols-2 gap-0.5">
@@ -308,8 +318,8 @@ const isInCart = (programId: string) => {
                     onClick={() => setViewMode("list")}
                     className={`p-2 rounded-lg transition-colors ${
                       viewMode === "list"
-                        ? "bg-rose-500 text-white"
-                        : "text-slate-400 hover:text-white"
+                        ? "bg-gradient-to-r from-[#C15364] to-[#868B96] text-white"
+                        : "text-gray-400 hover:text-white"
                     }`}
                   >
                     <div className="w-5 h-5 flex flex-col justify-center space-y-1">
@@ -323,14 +333,14 @@ const isInCart = (programId: string) => {
             </div>
 
             {/* Results Count */}
-            <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/10">
-              <p className="text-slate-400">
+            <div className="flex justify-between items-center mt-6 pt-4 border-t border-[#868B96]/20">
+              <p className="text-gray-300">
                 Showing{" "}
-                <span className="text-white font-semibold">
+                <span className="text-[#C15364] font-semibold">
                   {filteredPrograms.length}
                 </span>{" "}
                 of{" "}
-                <span className="text-white font-semibold">
+                <span className="text-[#C15364] font-semibold">
                   {programs.length}
                 </span>{" "}
                 programs
@@ -338,7 +348,7 @@ const isInCart = (programId: string) => {
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="text-rose-400 hover:text-slate-400 text-sm transition-colors"
+                  className="text-[#868B96] hover:text-white text-sm transition-colors"
                 >
                   Clear search
                 </button>
@@ -352,15 +362,14 @@ const isInCart = (programId: string) => {
       <div className="container mx-auto px-6 pb-20">
         {filteredPrograms.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Search className="w-12 h-12 text-slate-400" />
+            <div className="w-24 h-24 bg-gradient-to-br from-[#C15364]/20 to-[#868B96]/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-[#C15364]/30">
+              <Search className="w-12 h-12 text-[#C15364]" />
             </div>
             <h3 className="text-2xl font-bold text-white mb-4">
               No programs found
             </h3>
-            <p className="text-slate-400 mb-6">
-              Try adjusting your search criteria or filters to find more
-              programs.
+            <p className="text-gray-400 mb-6">
+              Try adjusting your search criteria or filters to find more programs.
             </p>
             <button
               onClick={() => {
@@ -368,7 +377,7 @@ const isInCart = (programId: string) => {
                 setSelectedCategory("All");
                 setSelectedLevel("All");
               }}
-              className="px-6 py-3 bg-gradient-to-r from-rose-500 to-slate-500 text-white rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+              className="px-6 py-3 bg-gradient-to-r from-[#C15364] to-[#868B96] text-white rounded-xl hover:shadow-lg hover:shadow-[#C15364]/25 transform hover:scale-105 transition-all duration-300"
             >
               Reset Filters
             </button>
@@ -384,71 +393,74 @@ const isInCart = (programId: string) => {
             {filteredPrograms.map((program) => (
               <div
                 key={program.id}
-                className={`bg-slate-800/80 backdrop-blur-md rounded-2xl border border-white/10 hover:border-rose-400/30 transition-all duration-300 group overflow-hidden ${
+                className={`group relative bg-gradient-to-br from-gray-900/80 to-black/90 backdrop-blur-md rounded-2xl border border-[#868B96]/20 hover:border-[#C15364]/40 transition-all duration-500 overflow-hidden hover:shadow-2xl hover:shadow-[#C15364]/10 float-animation ${
                   viewMode === "list" ? "flex" : ""
-                }`}
+                } ${program.isFeatured ? "glow-effect" : ""}`}
               >
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#C15364]/5 via-transparent to-[#868B96]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
                 {/* Image Section */}
                 <div
                   className={`relative overflow-hidden ${
                     viewMode === "list" ? "w-80 flex-shrink-0" : "aspect-video"
                   }`}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-rose-500/20 to-slate-500/20" />
-                  <div className="absolute inset-0 bg-black/40" />
+                  {/* Placeholder gradient background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#C15364]/30 via-gray-800 to-[#868B96]/30" />
+                  
+                  {/* Fitness icon overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-16 h-16 bg-gradient-to-r from-[#C15364]/20 to-[#868B96]/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/10">
+                      {program.category === "Weight Loss" && <Flame className="w-8 h-8 text-[#C15364]" />}
+                      {program.category === "Strength Training" && <Trophy className="w-8 h-8 text-[#868B96]" />}
+                      {program.category === "Yoga" && <Target className="w-8 h-8 text-[#C15364]" />}
+                      {!["Weight Loss", "Strength Training", "Yoga"].includes(program.category) && <Play className="w-8 h-8 text-[#868B96]" />}
+                    </div>
+                  </div>
 
                   {/* Badges */}
-                  <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                  <div className="absolute top-4 left-4 flex flex-wrap gap-2 z-10">
                     {program.isFeatured && (
-                      <span className="px-3 py-1 bg-gradient-to-r from-rose-500 to-slate-500 text-white text-xs font-bold rounded-full">
+                      <span className="px-3 py-1 bg-gradient-to-r from-[#C15364] to-[#868B96] text-white text-xs font-bold rounded-full shadow-lg">
                         FEATURED
                       </span>
                     )}
                     {program.isPopular && (
-                      <span className="px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-full">
+                      <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold rounded-full shadow-lg">
                         POPULAR
                       </span>
                     )}
                     {program.originalPrice && (
-                      <span className="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-full">
+                      <span className="px-3 py-1 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold rounded-full shadow-lg">
                         SALE
                       </span>
                     )}
                   </div>
 
-                  {/* Favorite Button */}
-                  {/* Favorite Button */}
+                  {/* Favorite button */}
                   <button
-                    onClick={() => handleToggleFavorite(program.id)}
-                    className={`absolute top-4 right-4 p-2 backdrop-blur-sm rounded-full transition-all duration-300 ${
-                      favorites.includes(program.id)
-                        ? "bg-red-500/80 text-white"
-                        : "bg-black/50 hover:bg-black/70 text-white"
-                    }`}
+                   
+                    className="absolute top-4 right-4 p-2 bg-black/50 backdrop-blur-sm rounded-full hover:bg-[#C15364]/20 transition-colors z-10"
                   >
                     <Heart
                       className={`w-5 h-5 ${
-                        favorites.includes(program.id) ? "fill-current" : ""
+                        favorites.includes(program.id)
+                          ? "text-[#C15364] fill-current"
+                          : "text-white"
                       }`}
                     />
                   </button>
 
-                  {/* Preview Button */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-4 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors">
-                      <Play className="w-8 h-8 text-white ml-1" />
-                    </button>
-                  </div>
-
                   {/* Level Badge */}
-                  <div className="absolute bottom-4 left-4">
+                  <div className="absolute bottom-4 left-4 z-10">
                     <span
-                      className={`px-3 py-1 text-xs font-bold rounded-full ${
+                      className={`px-3 py-1 text-xs font-bold rounded-full shadow-lg ${
                         program.level === "Beginner"
-                          ? "bg-green-500/80 text-white"
+                          ? "bg-gradient-to-r from-green-500/80 to-green-600/80 text-white"
                           : program.level === "Intermediate"
-                          ? "bg-yellow-500/80 text-white"
-                          : "bg-red-500/80 text-white"
+                          ? "bg-gradient-to-r from-yellow-500/80 to-yellow-600/80 text-white"
+                          : "bg-gradient-to-r from-red-500/80 to-red-600/80 text-white"
                       }`}
                     >
                       {program.level}
@@ -457,57 +469,57 @@ const isInCart = (programId: string) => {
                 </div>
 
                 {/* Content Section */}
-                <div className="p-6 flex-1">
+                <div className="p-6 flex-1 relative z-10">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-2">
-                        <h3 className="text-xl font-bold text-white group-hover:text-rose-400 transition-colors">
+                        <h3 className="text-xl font-bold text-white group-hover:text-[#C15364] transition-colors">
                           {program.title}
                         </h3>
                         {isInCart(program.id) && (
-                          <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full">
+                          <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full border border-green-500/30">
                             IN CART
                           </span>
                         )}
                       </div>
-                      <p className="text-slate-400 text-sm mb-1">
+                      <p className="text-gray-400 text-sm mb-1">
                         by {program.instructor}
                       </p>
-                      <p className="text-rose-400 text-sm font-medium">
+                      <p className="text-[#C15364] text-sm font-medium">
                         {program.category}
                       </p>
                     </div>
                     <div className="text-right">
                       {program.originalPrice && (
-                        <p className="text-slate-400 text-sm line-through">
-                          {program.originalPrice}
+                        <p className="text-gray-500 text-sm line-through">
+                          ${program.originalPrice}
                         </p>
                       )}
                       <p className="text-2xl font-bold text-white">
-                        {program.price}
+                        ${program.price}
                       </p>
                     </div>
                   </div>
 
-                  <p className="text-slate-400 text-sm mb-4">
+                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">
                     {program.description}
                   </p>
 
                   {/* Stats */}
-                  <div className="flex items-center space-x-4 mb-4 text-sm text-slate-400">
+                  <div className="flex items-center space-x-4 mb-4 text-sm text-gray-300">
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 text-yellow-500 fill-current" />
                       <span className="text-white font-medium">
                         {program.rating}
                       </span>
-                      <span>({program.reviews.toLocaleString()})</span>
+                      <span className="text-gray-400">({program.reviews.toLocaleString()})</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-4 h-4 text-[#868B96]" />
                       <span>{program.duration}</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Users className="w-4 h-4" />
+                      <Users className="w-4 h-4 text-[#C15364]" />
                       <span>{program.students.toLocaleString()}</span>
                     </div>
                   </div>
@@ -520,18 +532,14 @@ const isInCart = (programId: string) => {
                         .map((feature, index) => (
                           <span
                             key={index}
-                            className="px-2 py-1 bg-slate-900/50 text-slate-400 text-xs rounded-lg border border-white/5"
+                            className="px-3 py-1 bg-gradient-to-r from-[#C15364]/10 to-[#868B96]/10 text-gray-300 text-xs rounded-lg border border-[#868B96]/20 hover:border-[#C15364]/40 transition-colors"
                           >
                             {feature}
                           </span>
                         ))}
-                      {program.features.length >
-                        (viewMode === "list" ? 5 : 3) && (
-                        <span className="px-2 py-1 bg-slate-900/50 text-slate-400 text-xs rounded-lg border border-white/5">
-                          +
-                          {program.features.length -
-                            (viewMode === "list" ? 5 : 3)}{" "}
-                          more
+                      {program.features.length > (viewMode === "list" ? 5 : 3) && (
+                        <span className="px-3 py-1 bg-gradient-to-r from-[#C15364]/10 to-[#868B96]/10 text-gray-400 text-xs rounded-lg border border-[#868B96]/20">
+                          +{program.features.length - (viewMode === "list" ? 5 : 3)} more
                         </span>
                       )}
                     </div>
@@ -543,8 +551,8 @@ const isInCart = (programId: string) => {
                       onClick={() => handleAddToCart(program)}
                       className={`flex-1 flex items-center justify-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
                         isInCart(program.id)
-                          ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                          : "bg-gradient-to-r from-rose-500 to-slate-500 text-white hover:shadow-lg transform hover:scale-105"
+                          ? "bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30"
+                          : "bg-gradient-to-r from-[#C15364] to-[#868B96] text-white hover:shadow-lg hover:shadow-[#C15364]/25 transform hover:scale-105"
                       }`}
                     >
                       <ShoppingCart className="w-5 h-5" />
@@ -552,7 +560,7 @@ const isInCart = (programId: string) => {
                         {isInCart(program.id) ? "Added to Cart" : "Add to Cart"}
                       </span>
                     </button>
-                    <button className="px-4 py-3 bg-slate-700/50 text-slate-300 rounded-xl hover:bg-slate-700 transition-colors">
+                    <button className="px-4 py-3 bg-gradient-to-r from-[#868B96]/20 to-[#C15364]/10 text-gray-300 rounded-xl hover:from-[#868B96]/30 hover:to-[#C15364]/20 hover:text-white transition-all border border-[#868B96]/20 hover:border-[#C15364]/40">
                       <Eye className="w-5 h-5" />
                     </button>
                   </div>

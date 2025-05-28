@@ -216,7 +216,7 @@ const CartPage: React.FC = () => {
   // Loading state
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-rose-500 mx-auto mb-4"></div>
           <p className="text-slate-400">Loading...</p>
@@ -228,7 +228,7 @@ const CartPage: React.FC = () => {
   // Empty Cart UI
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
         <div className="text-center space-y-6">
           <ShoppingCart className="mx-auto w-16 h-16 text-slate-400" />
           <h2 className="text-2xl font-bold">Your Cart is Empty</h2>
@@ -237,7 +237,7 @@ const CartPage: React.FC = () => {
           </p>
           <button
             onClick={() => window.history.back()}
-            className="px-6 py-3 bg-rose-500 rounded-lg text-white hover:bg-rose-600 transition transform hover:scale-105"
+            className="px-6 py-3 rounded-lg text-white transition transform hover:scale-105 bg-gradient-to-r from-[#C15364] to-[#858B95] hover:from-[#C15364] hover:to-[#858B95]"
           >
             Browse Programs
           </button>

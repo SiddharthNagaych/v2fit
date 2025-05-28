@@ -9,45 +9,10 @@ import {
   Users,
   Trophy,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 
-// Memoized FloatingParticles component to prevent unnecessary re-renders
-const FloatingParticles = memo(() => {
- const particles = useMemo(
-  () =>
-    Array.from({ length: 20 }, (_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`,
-      duration: 3 + Math.random() * 4,
-      delay: Math.random() * 2,
-    })),
-  []
-);
-
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {particles.map(({ id, left, top, duration, delay }) => (
-        <div
-          key={id}
-          className="absolute w-2 h-2 bg-gradient-to-r from-[#BA5E6C] to-[#838C95] rounded-full opacity-20"
-          style={{
-            left,
-            top,
-            animation: `float ${duration}s ease-in-out infinite`,
-            animationDelay: `${delay}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
-});
-
-FloatingParticles.displayName = "FloatingParticles";
-
-// Memoized AnimatedCard with optimized animation handling
 const AnimatedCard = memo(
   ({
     children,
@@ -67,10 +32,10 @@ const AnimatedCard = memo(
 
     return (
       <div
-        className={`transform transition-all duration-1000 ease-out ${
+        className={`transform transition-all duration-500 ease-out ${
           isVisible
-            ? "translate-y-0 opacity-100 scale-100"
-            : "translate-y-8 opacity-0 scale-95"
+            ? "translate-y-0 opacity-100"
+            : "translate-y-8 opacity-0"
         } ${className}`}
       >
         {children}
@@ -81,7 +46,6 @@ const AnimatedCard = memo(
 
 AnimatedCard.displayName = "AnimatedCard";
 
-// Optimized GlassCard with memoization
 const GlassCard = memo(
   ({
     children,
@@ -92,7 +56,7 @@ const GlassCard = memo(
     className?: string;
   }) => (
     <div
-      className={`backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl hover:shadow-[#BA5E6C]/20 transition-all duration-500 ${className}`}
+      className={`bg-gray-900 border border-gray-700 rounded-2xl shadow-xl ${className}`}
       {...props}
     >
       {children}
@@ -100,10 +64,8 @@ const GlassCard = memo(
   )
 );
 
-
 GlassCard.displayName = "GlassCard";
 
-// Program interface
 interface Program {
   _id: string;
   title: string;
@@ -126,22 +88,21 @@ interface Program {
   updatedAt: string;
 }
 
-// Memoized ProgramSkeleton to prevent unnecessary re-renders
 const ProgramSkeleton = memo(() => (
   <div className="animate-pulse">
-    <GlassCard className="p-6 bg-white/5">
-      <div className="h-2 bg-gradient-to-r from-[#BA5E6C]/30 to-[#838C95]/30 rounded-t-xl mb-4"></div>
-      <div className="h-6 bg-white/10 rounded mb-2"></div>
-      <div className="h-4 bg-white/10 rounded mb-4 w-3/4"></div>
-      <div className="h-8 bg-white/10 rounded mb-4 w-1/2"></div>
+    <GlassCard className="p-6">
+      <div className="h-2 bg-gray-700 rounded mb-4"></div>
+      <div className="h-6 bg-gray-700 rounded mb-2"></div>
+      <div className="h-4 bg-gray-700 rounded mb-4 w-3/4"></div>
+      <div className="h-8 bg-gray-700 rounded mb-4 w-1/2"></div>
       <div className="space-y-2 mb-6">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-4 bg-white/10 rounded"></div>
+          <div key={i} className="h-4 bg-gray-700 rounded"></div>
         ))}
       </div>
       <div className="flex gap-2">
-        <div className="flex-1 h-12 bg-white/10 rounded-lg"></div>
-        <div className="w-12 h-12 bg-white/10 rounded-lg"></div>
+        <div className="flex-1 h-12 bg-gray-700 rounded-lg"></div>
+        <div className="w-12 h-12 bg-gray-700 rounded-lg"></div>
       </div>
     </GlassCard>
   </div>
@@ -149,50 +110,33 @@ const ProgramSkeleton = memo(() => (
 
 ProgramSkeleton.displayName = "ProgramSkeleton";
 
-// Helper functions
 const getProgramIcon = (category: string) => {
   switch (category.toLowerCase()) {
     case "weight loss":
-      return <Zap className="w-8 h-8" />;
+      return <Zap className="w-8 h-8 text-[#C15364]" />;
     case "muscle gain":
     case "strength":
-      return <Trophy className="w-8 h-8" />;
+      return <Trophy className="w-8 h-8 text-[#EBBAA9]" />;
     case "mental fitness":
     case "wellness":
-      return <Star className="w-8 h-8" />;
+      return <Star className="w-8 h-8 text-[#C15364]" />;
     default:
-      return <Users className="w-8 h-8" />;
+      return <Users className="w-8 h-8 text-[#EBBAA9]" />;
   }
 };
 
-const programGradients = [
-  "from-[#BA5E6C] via-[#BA5E6C]/80 to-[#838C95]",
-  "from-[#838C95] via-[#838C95]/80 to-[#BA5E6C]",
-  "from-[#BA5E6C]/80 via-[#838C95] to-[#BA5E6C]/60",
-];
-
-const getProgramGradient = (index: number) => {
-  return programGradients[index % programGradients.length];
-};
-
-// Main component
 const ProgramsSection = () => {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
- 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Memoized fetch function
   const fetchPrograms = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-
       const res = await fetch("/api/programs");
-      if (!res.ok) {
-        throw new Error("Failed to fetch programs");
-      }
+      if (!res.ok) throw new Error("Failed to fetch programs");
       const data = await res.json();
       setPrograms(data);
     } catch (err) {
@@ -207,7 +151,6 @@ const ProgramsSection = () => {
     fetchPrograms();
   }, [fetchPrograms]);
 
-  // Memoized event handlers
   const handleProgramClick = useCallback((program: Program): void => {
     setSelectedProgram(program);
   }, []);
@@ -237,212 +180,170 @@ const ProgramsSection = () => {
     }
   }, []);
 
-  // Memoized program cards to prevent re-renders
   const renderProgramCards = useMemo(() => {
     if (loading || error) return null;
-
     return programs.map((program, index) => (
       <AnimatedCard key={`${program._id}-${index}`} delay={index * 150}>
         <ProgramCard
           program={program}
-          index={index}
+        
           onClick={handleProgramClick}
           onPurchase={handlePurchase}
-        
-        
         />
       </AnimatedCard>
     ));
-  }, [
-    programs,
-    loading,
-    error,
-    handleProgramClick,
-    handlePurchase,
- 
-  ]);
+  }, [programs, loading, error, handleProgramClick, handlePurchase]);
 
   return (
-    <>
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-          willChange: "transform, opacity"
-          @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-          }
-          @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(186, 94, 108, 0.3); }
-            50% { box-shadow: 0 0 40px rgba(186, 94, 108, 0.6); }
-          }
-          @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-          }
-          .animate-shimmer {
-            animation: shimmer 2s infinite;
-          }
-        `,
-        }}
-      />
+    <section id="programs" className="relative min-h-screen bg-black">
+      <div className="relative container mx-auto px-6 py-20">
+        <AnimatedCard>
+          <div className="text-center mb-20">
+            <div className="inline-block mb-6">
+              <h2 className="text-6xl md:text-7xl font-black text-white mb-4 leading-tight">
+                Elite Programs
+              </h2>
+              <div className="h-1 bg-gradient-to-r from-[#EBBAA9] to-[#C15364]"></div>
+            </div>
+            <p className="text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Scientifically designed transformations that deliver extraordinary results
+            </p>
+          </div>
+        </AnimatedCard>
 
-      <section
-        id="programs"
-        className="relative min-h-screen bg-gradient-to-br from-[#BA5E6C]/10 via-black to-[#838C95]/10 overflow-hidden"
-      >
-        <FloatingParticles />
-
-        {/* Background Effects */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#BA5E6C]/20 via-transparent to-[#838C95]/20"></div>
-        <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent,#BA5E6C10,transparent)]"></div>
-
-        <div className="relative container mx-auto px-6 py-20">
-          <AnimatedCard>
-            <div className="text-center mb-20">
-              <div className="inline-block mb-6">
-                <h2 className="text-6xl md:text-7xl font-black bg-gradient-to-r from-[#BA5E6C] via-white to-[#838C95] bg-clip-text text-transparent mb-4 leading-tight">
-                  Elite Programs
-                </h2>
-                <div className="h-1 bg-gradient-to-r from-transparent via-[#BA5E6C] to-transparent"></div>
+        {error && (
+          <AnimatedCard className="max-w-2xl mx-auto mb-12">
+            <GlassCard className="p-8 bg-red-900 border-red-700">
+              <div className="flex items-center justify-center text-red-400 mb-4">
+                <AlertCircle className="w-8 h-8 mr-3" />
+                <h3 className="text-xl font-semibold">Error Loading Programs</h3>
               </div>
-              <p className="text-2xl text-white/80 max-w-3xl mx-auto leading-relaxed">
-                Scientifically designed transformations that deliver
-                extraordinary results
-              </p>
+              <p className="text-red-300 text-center mb-6">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="w-full py-3 bg-gradient-to-r from-[#EBBAA9] to-[#C15364] hover:from-[#C15364] hover:to-[#EBBAA9] text-white rounded-lg transition-all duration-300"
+              >
+                 <Loader2 className={`mr-2 h-4 w-4 animate-spin ${!loading ? 'hidden' : ''}`} />
+                Retry
+              </button>
+            </GlassCard>
+          </AnimatedCard>
+        )}
+
+        {loading && (
+          <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto mb-12">
+            {[1, 2].map((i) => (
+              <AnimatedCard key={i} delay={i * 150}>
+                <ProgramSkeleton />
+              </AnimatedCard>
+            ))}
+          </div>
+        )}
+
+        {!loading && !error && programs.length > 0 && (
+          <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto mb-12">
+            {renderProgramCards}
+          </div>
+        )}
+
+        {!loading && !error && programs.length === 0 && (
+          <AnimatedCard className="text-center py-20">
+            <div className="text-gray-400 mb-4">
+              <Users className="w-16 h-16 mx-auto mb-4 text-[#EBBAA9]" />
+              <h3 className="text-2xl font-semibold">No Programs Available</h3>
+              <p className="text-lg">Check back soon for new programs!</p>
             </div>
           </AnimatedCard>
+        )}
 
-          {/* Error State */}
-          {error && (
-            <AnimatedCard className="max-w-2xl mx-auto mb-12">
-              <GlassCard className="p-8 bg-red-500/10 border-red-500/30">
-                <div className="flex items-center justify-center text-red-400 mb-4">
-                  <AlertCircle className="w-8 h-8 mr-3" />
-                  <h3 className="text-xl font-semibold">
-                    Error Loading Programs
-                  </h3>
-                </div>
-                <p className="text-red-300 text-center mb-6">{error}</p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
-                >
-                  Retry
-                </button>
-              </GlassCard>
-            </AnimatedCard>
-          )}
-
-          {/* Loading State */}
-          {loading && (
-            <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto mb-12">
-              {[1, 2].map((i) => (
-                <AnimatedCard key={i} delay={i * 150}>
-                  <ProgramSkeleton />
-                </AnimatedCard>
-              ))}
-            </div>
-          )}
-
-          {/* Program Cards Grid */}
-          {!loading && !error && programs.length > 0 && (
-            <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto mb-12">
-              {renderProgramCards}
-            </div>
-          )}
-
-          {/* Empty State */}
-          {!loading && !error && programs.length === 0 && (
-            <AnimatedCard className="text-center py-20">
-              <div className="text-white/60 mb-4">
-                <Users className="w-16 h-16 mx-auto mb-4" />
-                <h3 className="text-2xl font-semibold">
-                  No Programs Available
-                </h3>
-                <p className="text-lg">Check back soon for new programs!</p>
-              </div>
-            </AnimatedCard>
-          )}
-
-          {/* Program Details Modal */}
-          {selectedProgram && (
-            <ProgramModal
-              program={selectedProgram}
-              onClose={closeProgramModal}
-              onPurchase={handlePurchase}
-            />
-          )}
-        </div>
-      </section>
-    </>
+        {selectedProgram && (
+          <ProgramModal
+            program={selectedProgram}
+            onClose={closeProgramModal}
+            onPurchase={handlePurchase}
+          />
+        )}
+      </div>
+    </section>
   );
 };
 
-// Extracted ProgramCard component for better performance
-// ProgramCard component
 const ProgramCard = memo(
   ({
     program,
-    index,
     onClick,
-  
-    
-    
   }: {
     program: Program;
-    index: number;
     onClick: (program: Program) => void;
     onPurchase: (program: Program) => void;
-   
-   
   }) => {
-    const gradient = useMemo(() => getProgramGradient(index), [index]);
-
- 
-
     return (
       <GlassCard
-        className="p-8 bg-white/5 group cursor-pointer overflow-hidden relative border-2 border-transparent hover:border-[#BA5E6C]/50 transform hover:scale-105 hover:-translate-y-2"
+        className="p-8 cursor-pointer relative border-2 border-gray-700 hover:border-gray-600"
         onClick={() => onClick(program)}
-       
       >
-     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer will-change-transform will-change-opacity"></div>
-</div>
-
-
-        {/* Featured/Popular Badge */}
         {(program.isFeatured || program.isPopular) && (
           <div className="absolute -top-2 -right-2 z-10">
-            <div className="bg-gradient-to-r from-[#BA5E6C] to-[#838C95] text-white px-3 py-1 rounded-full text-xs font-bold">
+            <div className="bg-gradient-to-r from-[#EBBAA9] to-[#C15364] text-white px-3 py-1 rounded-full text-xs font-bold">
               {program.isFeatured ? "FEATURED" : "POPULAR"}
             </div>
           </div>
         )}
 
-        {/* Program Image */}
         <div className="relative mb-6 rounded-xl overflow-hidden">
           <Image
             src={program.image}
             alt={program.title}
-            className="w-full h-48 object-cover transform group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-48 object-cover"
             loading="lazy"
             height={200}
             width={400}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
           <div className="absolute top-4 left-4 text-white">
             {getProgramIcon(program.category)}
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div
-          className={`h-2 bg-gradient-to-r ${gradient} rounded-t-xl mb-6 group-hover:h-4 transition-all duration-300`}
-        ></div>
+        <div className="h-2 bg-gradient-to-r from-[#EBBAA9] to-[#C15364] rounded mb-6"></div>
 
-        {/* Rest of the component... */}
+        <div className="mb-6">
+          <h3 className="text-2xl font-bold text-white mb-2">{program.title}</h3>
+          <p className="text-gray-400 mb-4">{program.description}</p>
+          
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center text-[#EBBAA9]">
+              <Star className="w-4 h-4 mr-1" />
+              <span className="text-sm font-semibold">{program.rating}</span>
+              <span className="text-gray-400 text-sm ml-1">({program.reviews})</span>
+            </div>
+            <span className="text-gray-400 text-sm">{program.students} students</span>
+          </div>
+          
+          <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
+            <span>{program.duration}</span>
+            <span>{program.level}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <span className="text-3xl font-bold text-white">${program.price}</span>
+            {program.originalPrice > program.price && (
+              <span className="text-lg text-gray-400 line-through ml-2">
+                ${program.originalPrice}
+              </span>
+            )}
+          </div>
+          <button 
+            className="px-6 py-2 bg-gradient-to-r from-[#EBBAA9] to-[#C15364] hover:from-[#C15364] hover:to-[#EBBAA9] text-white rounded-lg transition-all duration-300"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick(program);
+            }}
+          >
+            View Details
+          </button>
+        </div>
       </GlassCard>
     );
   }
@@ -450,7 +351,6 @@ const ProgramCard = memo(
 
 ProgramCard.displayName = "ProgramCard";
 
-// Extracted ProgramModal component for better performance
 const ProgramModal = memo(
   ({
     program,
@@ -462,11 +362,10 @@ const ProgramModal = memo(
     onPurchase: (program: Program) => void;
   }) => {
     return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
         <AnimatedCard className="w-full max-w-6xl max-h-[90vh] overflow-auto">
-          <GlassCard className="bg-white/10 border border-white/20">
+          <GlassCard className="bg-gray-900 border-gray-700">
             <div className="relative">
-              {/* Header Image */}
               <div className="relative h-64 overflow-hidden rounded-t-2xl">
                 <Image
                   src={program.image}
@@ -479,7 +378,7 @@ const ProgramModal = memo(
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                 <button
                   onClick={onClose}
-                  className="absolute top-4 right-4 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-colors z-10"
+                  className="absolute top-4 right-4 p-3 bg-black/50 hover:bg-black/70 rounded-full"
                 >
                   <X className="w-6 h-6 text-white" />
                 </button>
@@ -487,43 +386,42 @@ const ProgramModal = memo(
                   <h3 className="text-4xl font-bold text-white mb-2">
                     {program.title}
                   </h3>
-                  <p className="text-xl text-white/80">{program.description}</p>
+                  <p className="text-xl text-gray-300">{program.description}</p>
                 </div>
               </div>
 
               <div className="p-8">
                 <div className="grid lg:grid-cols-2 gap-12">
-                  {/* Left Column - Program Details */}
                   <div className="space-y-8">
                     <div>
                       <h4 className="text-2xl font-bold text-white mb-6">
                         Program Overview
                       </h4>
                       <div className="grid grid-cols-2 gap-4 mb-6">
-                        <div className="bg-white/5 p-4 rounded-xl">
-                          <Clock className="w-6 h-6 text-[#BA5E6C] mb-2" />
-                          <p className="text-white/60 text-sm">Duration</p>
+                        <div className="bg-gray-800 p-4 rounded-xl">
+                          <Clock className="w-6 h-6 text-[#EBBAA9] mb-2" />
+                          <p className="text-gray-400 text-sm">Duration</p>
                           <p className="text-white font-semibold">
                             {program.duration}
                           </p>
                         </div>
-                        <div className="bg-white/5 p-4 rounded-xl">
-                          <Award className="w-6 h-6 text-[#BA5E6C] mb-2" />
-                          <p className="text-white/60 text-sm">Level</p>
+                        <div className="bg-gray-800 p-4 rounded-xl">
+                          <Award className="w-6 h-6 text-[#EBBAA9] mb-2" />
+                          <p className="text-gray-400 text-sm">Level</p>
                           <p className="text-white font-semibold">
                             {program.level}
                           </p>
                         </div>
-                        <div className="bg-white/5 p-4 rounded-xl">
-                          <Users className="w-6 h-6 text-[#BA5E6C] mb-2" />
-                          <p className="text-white/60 text-sm">Students</p>
+                        <div className="bg-gray-800 p-4 rounded-xl">
+                          <Users className="w-6 h-6 text-[#EBBAA9] mb-2" />
+                          <p className="text-gray-400 text-sm">Students</p>
                           <p className="text-white font-semibold">
                             {program.students.toLocaleString()}
                           </p>
                         </div>
-                        <div className="bg-white/5 p-4 rounded-xl">
-                          <Star className="w-6 h-6 text-[#BA5E6C] mb-2" />
-                          <p className="text-white/60 text-sm">Rating</p>
+                        <div className="bg-gray-800 p-4 rounded-xl">
+                          <Star className="w-6 h-6 text-[#EBBAA9] mb-2" />
+                          <p className="text-gray-400 text-sm">Rating</p>
                           <p className="text-white font-semibold">
                             {program.rating}/5
                           </p>
@@ -535,11 +433,11 @@ const ProgramModal = memo(
                       <h4 className="text-xl font-bold text-white mb-4">
                         Instructor
                       </h4>
-                      <div className="bg-white/5 p-6 rounded-xl">
+                      <div className="bg-gray-800 p-6 rounded-xl">
                         <p className="text-white font-semibold text-lg mb-2">
                           {program.instructor}
                         </p>
-                        <p className="text-white/70">
+                        <p className="text-gray-300">
                           Professional fitness instructor specializing in{" "}
                           {program.category.toLowerCase()}
                         </p>
@@ -548,15 +446,15 @@ const ProgramModal = memo(
 
                     <div>
                       <h4 className="text-xl font-bold text-white mb-4">
-                        What You&apos;ll Get
+                        What You Will Get
                       </h4>
                       <div className="grid gap-3">
                         {program.features.map((feature, idx) => (
                           <div
                             key={idx}
-                            className="flex items-center bg-white/5 p-3 rounded-lg"
+                            className="flex items-center bg-gray-800 p-3 rounded-lg"
                           >
-                            <CheckCircle className="w-5 h-5 text-[#BA5E6C] mr-3 flex-shrink-0" />
+                            <CheckCircle className="w-5 h-5 text-[#EBBAA9] mr-3 flex-shrink-0" />
                             <span className="text-white">{feature}</span>
                           </div>
                         ))}
@@ -571,7 +469,7 @@ const ProgramModal = memo(
                         {program.tags.map((tag, idx) => (
                           <span
                             key={idx}
-                            className="px-3 py-1 bg-[#BA5E6C]/20 text-[#BA5E6C] rounded-full text-sm"
+                            className="px-3 py-1 bg-gradient-to-r from-[#EBBAA9] to-[#C15364] text-white rounded-full text-sm"
                           >
                             {tag}
                           </span>
@@ -580,36 +478,35 @@ const ProgramModal = memo(
                     </div>
                   </div>
 
-                  {/* Right Column - Purchase */}
                   <div className="lg:sticky lg:top-8">
-                    <div className="bg-gradient-to-br from-[#BA5E6C]/20 to-[#838C95]/20 p-8 rounded-2xl border border-white/10">
+                    <div className="bg-gray-800 p-8 rounded-2xl border border-gray-700">
                       <div className="text-center mb-8">
                         <div className="flex items-center justify-center gap-3 mb-4">
                           <span className="text-5xl font-bold text-white">
                             ${program.price}
                           </span>
                           {program.originalPrice > program.price && (
-                            <span className="text-2xl text-white/50 line-through">
+                            <span className="text-2xl text-gray-400 line-through">
                               ${program.originalPrice}
                             </span>
                           )}
                         </div>
-                        <p className="text-white/70">per month</p>
-                        <p className="text-[#BA5E6C] font-semibold mt-2">
+                        <p className="text-gray-400">per month</p>
+                        <p className="text-[#EBBAA9] font-semibold mt-2">
                           Start your transformation today
                         </p>
                       </div>
 
                       <div className="space-y-4 mb-8">
-                        <div className="flex justify-between text-white/80">
+                        <div className="flex justify-between text-gray-300">
                           <span>Program Access</span>
                           <span>Lifetime</span>
                         </div>
-                        <div className="flex justify-between text-white/80">
+                        <div className="flex justify-between text-gray-300">
                           <span>Support</span>
                           <span>24/7</span>
                         </div>
-                        <div className="flex justify-between text-white/80">
+                        <div className="flex justify-between text-gray-300">
                           <span>Money-back Guarantee</span>
                           <span>30 days</span>
                         </div>
@@ -617,12 +514,12 @@ const ProgramModal = memo(
 
                       <button
                         onClick={() => onPurchase(program)}
-                        className="w-full py-4 bg-gradient-to-r from-[#BA5E6C] to-[#838C95] text-white rounded-xl hover:shadow-2xl hover:shadow-[#BA5E6C]/30 transform hover:scale-105 transition-all duration-300 font-semibold text-lg mb-4"
+                        className="w-full py-4 bg-gradient-to-r from-[#EBBAA9] to-[#C15364] hover:from-[#C15364] hover:to-[#EBBAA9] text-white rounded-xl font-semibold text-lg mb-4 transition-all duration-300"
                       >
                         Purchase Program
                       </button>
 
-                      <p className="text-center text-white/60 text-sm">
+                      <p className="text-center text-gray-400 text-sm">
                         Secure payment • Cancel anytime • 30-day guarantee
                       </p>
                     </div>

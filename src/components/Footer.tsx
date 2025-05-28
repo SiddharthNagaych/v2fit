@@ -49,7 +49,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-gray-900 text-white py-12 relative">
+    <footer className="bg-black text-white py-12 relative">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-8">
           <AnimatedCard>

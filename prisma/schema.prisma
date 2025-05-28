@@ -22,44 +22,48 @@ enum ProgramLevel {
 }
 
 model User {
-  id            String             @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String             @unique
-  emailVerified DateTime?
-  password      String?
-  image         String?
-  role          Role               @default(USER)
-  accounts      Account[]
-  sessions      Session[]
-  cart          Cart?
-  payments      Payment[] // ✅ backref
-  purchases     PurchasedProgram[] // ✅ backref
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  name             String?
+  email            String             @unique
+  emailVerified    DateTime?
+  password         String?
+  image            String?
+  role             Role               @default(USER)
+  accounts         Account[]
+  sessions         Session[]
+  cart             Cart?
+  payments         Payment[] // ✅ backref
+  purchases        PurchasedProgram[] // ✅ backref
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  assignedGymId    String?            @db.ObjectId
+  assignedGym      Gym?               @relation(fields: [assignedGymId], references: [id])
+  sessionSchedules SessionSchedule[]
 }
 
 model Product {
-  id            String             @id @default(auto()) @map("_id") @db.ObjectId
-  title         String
-  description   String
-  price         Float
-  originalPrice Float?
-  duration      String
-  level         ProgramLevel
-  category      String
-  instructor    String
-  rating        Float
-  reviews       Int
-  students      Int
-  image         String
-  features      String[]
-  tags          String[]
-  isFeatured    Boolean            @default(false)
-  isPopular     Boolean            @default(false)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  carts         CartItem[]
-  purchases     PurchasedProgram[] // ✅ backref
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  description      String
+  price            Float
+  originalPrice    Float?
+  duration         String
+  level            ProgramLevel
+  category         String
+  instructor       String
+  rating           Float
+  reviews          Int
+  students         Int
+  image            String
+  features         String[]
+  tags             String[]
+  isFeatured       Boolean            @default(false)
+  isPopular        Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  carts            CartItem[]
+  purchases        PurchasedProgram[] // ✅ backref
+  sessionSchedules SessionSchedule[]
 }
 
 model Cart {
@@ -151,14 +155,31 @@ model PurchasedProgram {
 }
 
 model Gym {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  location  String
-  amenities String[]
-  images    String[]
-  rating    Float
-  programs  String[]
-  highlight String
-  members   Int
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  location         String
+  amenities        String[]
+  images           String[]
+  rating           Float
+  programs         String[]
+  highlight        String
+  members          Int
+  users            User[] // backref
+  sessionSchedules SessionSchedule[]
 }
 
+model SessionSchedule {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  gymId     String   @db.ObjectId
+  gym       Gym      @relation(fields: [gymId], references: [id])
+  programId String   @db.ObjectId
+  program   Product  @relation(fields: [programId], references: [id])
+  date      DateTime
+  time      String
+  notes     String?
+  meetLink  String? // ✅ Add this for Google Meet
+
+  createdAt DateTime @default(now())
+}

@@ -1,8 +1,8 @@
 "use client";
 import React from 'react';
 
-import {HeroSection} from '../components/HeroSection';
-import {ScheduleSection} from '../components/ScheduleSection';
+import HeroSection from '../components/HeroSection';
+import ScheduleSection from '../components/ScheduleSection';
 import ProgramsSection from '../components/ProgramsSection';
 import GymSection from '../components/GymSection';
 

@@ -27,11 +27,11 @@ const authConfig: NextAuthConfig = {
         const user = await prisma.user.findUnique({ where: { email } });
 
         if (!user) {
-          throw new Error("No user found with this email");
+          throw new Error("Invalid Credentials");
         }
 
         if (!user.password) {
-          throw new Error("Password is not set for this user");
+          throw new Error("Invalid Credentials");
         }
 
         // Ensure password is not null before calling bcrypt.compare

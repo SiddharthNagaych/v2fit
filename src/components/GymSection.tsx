@@ -156,7 +156,7 @@ const GymSection: React.FC = () => {
   // Loading state
   if (loading) {
     return (
-      <section className="py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      <section className="py-20 bg-black">
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#C15364]"></div>
@@ -170,7 +170,7 @@ const GymSection: React.FC = () => {
   // Error state
   if (error) {
     return (
-      <section className="py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      <section className="py-20 bg-black">
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center">
             <p className="text-red-400 text-lg">{error}</p>
@@ -200,13 +200,12 @@ const GymSection: React.FC = () => {
   }
 
   const currentGym = gyms[currentIndex];
-  const nextGym = gyms[(currentIndex + 1) % gyms.length];
-  const prevGym = gyms[(currentIndex - 1 + gyms.length) % gyms.length];
+ 
 
   return (
     <section
       id="gyms"
-      className="py-12 md:py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden relative"
+      className="py-12 md:py-20 bg-black overflow-hidden relative"
     >
       {/* Animated Background */}
       <div className="absolute inset-0">
@@ -214,26 +213,7 @@ const GymSection: React.FC = () => {
         <div className="absolute top-0 left-1/4 w-48 h-48 md:w-72 md:h-72 bg-[#C15364]/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 right-1/4 w-64 h-64 md:w-96 md:h-96 bg-[#858B95]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         
-        {/* Floating particles */}
-        {[...Array(20)].map((_, i) => {
-          const angle = (i * 137.5) % 360;
-          const distance = 0.5 * Math.sqrt(i + 0.5);
-          const left = 50 + distance * Math.cos((angle * Math.PI) / 180);
-          const top = 50 + distance * Math.sin((angle * Math.PI) / 180);
-
-          return (
-            <div
-              key={i}
-              className="absolute w-1 h-1 bg-white/20 rounded-full animate-pulse"
-              style={{
-                left: `${Math.min(95, Math.max(5, left))}%`,
-                top: `${Math.min(95, Math.max(5, top))}%`,
-                animationDelay: `${(i * 0.15) % 3}s`,
-                animationDuration: `${2 + ((i * 0.2) % 3)}s`,
-              }}
-            />
-          );
-        })}
+   
       </div>
 
       <div className="container mx-auto px-4 md:px-6 relative z-10" ref={containerRef}>
@@ -437,81 +417,7 @@ const GymSection: React.FC = () => {
               </div>
             </div>
 
-            {/* Side Preview Cards (Desktop Only) */}
-            {gyms.length > 1 && (
-              <>
-                <div className="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-8 w-80 opacity-60 hover:opacity-80 transition-all duration-500 transform hover:scale-105">
-                  <div
-                    className="bg-gradient-to-br from-[#868C96]/30 to-[#868C96]/40 backdrop-blur-xl border border-[#868C96]/30 rounded-2xl p-6 cursor-pointer"
-                    onClick={() => prevSlide()}
-                  >
-                    <div className="h-40 bg-gradient-to-br from-[#858B95]/20 to-[#C15364]/20 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                      {prevGym.images && prevGym.images.length > 0 ? (
-                        <Image
-                          src={prevGym.images[0]}
-                          alt={prevGym.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                          height={600}
-                          width={400}
-                          loading="lazy"
-
-                        />
-                      ) : (
-                        <Camera className="w-12 h-12 text-white/60" />
-                      )}
-                    </div>
-                    <h4 className="text-white font-bold mb-2">{prevGym.name}</h4>
-                    <div className="flex items-center mb-3">
-                      <Star className="w-4 h-4 text-yellow-400 mr-1 fill-current" />
-                      <span className="text-white/80 text-sm">
-                        {parseFloat(prevGym.rating.$numberDouble).toFixed(1)}
-                      </span>
-                    </div>
-                    <div className="text-[#C15364] text-sm">
-                      {prevGym.highlight || "Premium Facility"}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-8 w-80 opacity-60 hover:opacity-80 transition-all duration-500 transform hover:scale-105">
-                  <div
-                    className="bg-gradient-to-br from-[#868C96]/30 to-[#868C96]/40 backdrop-blur-xl border border-[#868C96]/30 rounded-2xl p-6 cursor-pointer"
-                    onClick={() => nextSlide()}
-                  >
-                    <div className="h-40 bg-gradient-to-br from-[#C15364]/20 to-[#858B95]/20 rounded-xl mb-4 flex items-center justify-center overflow-hidden">
-                      {nextGym.images && nextGym.images.length > 0 ? (
-                        <Image
-                          src={nextGym.images[0]}
-                          alt={nextGym.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                          height={200}
-                          width={200}
-                          loading='lazy'
-                        />
-                      ) : (
-                        <Camera className="w-12 h-12 text-white/60" />
-                      )}
-                    </div>
-                    <h4 className="text-white font-bold mb-2">{nextGym.name}</h4>
-                    <div className="flex items-center mb-3">
-                      <Star className="w-4 h-4 text-yellow-400 mr-1 fill-current" />
-                      <span className="text-white/80 text-sm">
-                        {parseFloat(nextGym.rating.$numberDouble).toFixed(1)}
-                      </span>
-                    </div>
-                    <div className="text-[#858B95] text-sm">
-                      {nextGym.highlight || "Premium Facility"}
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
+           
           </div>
 
           {/* Navigation Controls */}
