@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const AnimatedCard = ({ children: children, delay = 0 }: { children: React.ReactNode, delay?: number }) => {
   return (
@@ -54,12 +55,16 @@ export default function HeroSection() {
                      
             <AnimatedCard delay={600}>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/auth/Sign-In">
                 <button className="px-8 py-4 bg-gradient-to-r from-[#C15364] to-[#858B95] text-white rounded-full hover:shadow-lg hover:shadow-[#C15364]/25 transform hover:scale-105 transition-all duration-300 text-lg font-semibold">
                   Start Your Journey
                 </button>
+                </Link >
+                <Link href="/programs">
                 <button className="px-8 py-4 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full hover:bg-white/20 transition-all duration-300 text-lg font-semibold">
                   Explore Programs
                 </button>
+                </Link>
               </div>
             </AnimatedCard>
 

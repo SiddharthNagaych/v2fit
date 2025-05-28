@@ -1,3 +1,4 @@
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 interface AnimatedCardProps {
@@ -17,12 +18,13 @@ const AnimatedCard = ({ children, delay = 0 }: AnimatedCardProps) => {
 };
 
 const CTASection = () => {
+  const router=useRouter();
   const handleSignUp = () => {
-    console.log('Sign up with Google');
+    router.push("/auth/Sign-Up");
   };
 
   const handleViewPricing = () => {
-    console.log('View pricing');
+    router.push("/programs");
   };
 
   return (

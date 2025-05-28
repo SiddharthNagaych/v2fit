@@ -27,17 +27,17 @@ const Footer: React.FC = () => {
     {
       title: "Schedule",
       links: [
-        { text: "Weekday Programs", href: "#schedule" },
-        { text: "Personal Training", href: "#schedule" },
-        { text: "Group Sessions", href: "#schedule" }
+        { text: "Weekday Programs", href: "schedule" },
+        { text: "Personal Training", href: "schedule" },
+        { text: "Group Sessions", href: "schedule" }
       ]
     },
     {
       title: "Contact",
       links: [
         { text: "Find Locations", href: "#gyms" },
-        { text: "Support", onClick: () => console.log('Support clicked') },
-        { text: "Admin Portal", onClick: () => console.log('Admin portal clicked') }
+        { text: "Support", onClick: () => window.location.href="mailto:sidnagaych4321@gmail.com" },
+      
       ]
     }
   ];
