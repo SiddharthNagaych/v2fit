@@ -9,7 +9,7 @@ import {
   Users,
   Trophy,
   AlertCircle,
-  Loader2,
+  
 } from "lucide-react";
 import Image from "next/image";
 
@@ -223,7 +223,7 @@ const ProgramsSection = () => {
                 onClick={() => window.location.reload()}
                 className="w-full py-3 bg-gradient-to-r from-[#EBBAA9] to-[#C15364] hover:from-[#C15364] hover:to-[#EBBAA9] text-white rounded-lg transition-all duration-300"
               >
-                 <Loader2 className={`mr-2 h-4 w-4 animate-spin ${!loading ? 'hidden' : ''}`} />
+                
                 Retry
               </button>
             </GlassCard>
@@ -361,8 +361,52 @@ const ProgramModal = memo(
     onClose: () => void;
     onPurchase: (program: Program) => void;
   }) => {
+    // Add useEffect to handle escape key and prevent body scroll
+    useEffect(() => {
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+      };
+
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+      document.addEventListener('keydown', handleEscape);
+
+      return () => {
+        document.body.style.overflow = 'unset';
+        document.removeEventListener('keydown', handleEscape);
+      };
+    }, [onClose]);
+
+    // Handle backdrop click with proper event handling
+    const handleBackdropClick = useCallback((e: React.MouseEvent) => {
+      // Only close if clicking the backdrop, not the modal content
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    }, [onClose]);
+
+    // Handle close button click with event prevention
+    const handleCloseClick = useCallback((e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onClose();
+    }, [onClose]);
+
     return (
-      <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+      <div 
+        className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center p-4"
+        onClick={handleBackdropClick}
+        style={{ 
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 9999
+        }}
+      >
         <AnimatedCard className="w-full max-w-6xl max-h-[90vh] overflow-auto">
           <GlassCard className="bg-gray-900 border-gray-700">
             <div className="relative">
@@ -377,8 +421,17 @@ const ProgramModal = memo(
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                 <button
-                  onClick={onClose}
-                  className="absolute top-4 right-4 p-3 bg-black/50 hover:bg-black/70 rounded-full"
+                  onClick={handleCloseClick}
+                  className="absolute top-4 right-4 p-3 bg-black/70 hover:bg-black/90 rounded-full transition-colors duration-200 z-10"
+                  style={{ 
+                    minWidth: '48px', 
+                    minHeight: '48px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  aria-label="Close modal"
+                  type="button"
                 >
                   <X className="w-6 h-6 text-white" />
                 </button>
