@@ -18,7 +18,7 @@ export default function HeroSection() {
       
       <section className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center">
         {/* Background gradient overlay */}
-        <div className="absolute inset-0 bg-[url('/gym5.png')] bg-cover bg-center"></div>
+        <div className="absolute inset-0 bg-[url('/gym5.webp')] bg-cover bg-center"></div>
         
        
         
