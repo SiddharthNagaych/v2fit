@@ -50,7 +50,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-black flex items-center justify-center p-6">
       <div className="w-full max-w-md mx-auto">
         <div className="bg-slate-800/80 backdrop-blur-md rounded-2xl border border-white/10 p-8">
           <div className="text-center mb-8">
@@ -113,7 +113,7 @@ export default function SignInPage() {
 
             {/* Forgot Password Link */}
             <div className="text-right">
-              <a href="/auth/forgot-password" className="text-sm text-rose-400 hover:text-rose-300 transition-colors">
+              <a href="/auth/forgot-password" className="text-sm text-white hover:text-rose-300 transition-colors">
                 Forgot password?
               </a>
             </div>
@@ -122,7 +122,7 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-rose-500 to-slate-500 text-white rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+              className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-[#C15364] to-[#858B95] text-white  rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
             >
               {isLoading ? (
                 <>
@@ -153,7 +153,7 @@ export default function SignInPage() {
           <button
             onClick={() => signIn('google', { callbackUrl: '/' })}
             disabled={isLoading}
-            className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-rose-500 to-slate-500 text-white rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+            className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-[#C15364] to-[#858B95] text-white  rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
           >
             <Image src="https://img.icons8.com/stamp/32/F25081/google-logo.png" alt="Google" width={20} height={20} className="w-5 h-5" />
             <span>Sign in with Google</span>
