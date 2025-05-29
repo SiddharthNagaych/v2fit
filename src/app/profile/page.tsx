@@ -1,8 +1,21 @@
 "use client";
-import {   useEffect, useState } from "react";
-import { User, Mail, BadgeCheck, Dumbbell, CreditCard, Calendar, Trophy, TrendingUp, Settings, Edit2, Camera } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  User,
+  Mail,
+  BadgeCheck,
+  Dumbbell,
+  CreditCard,
+  Calendar,
+  Trophy,
+  TrendingUp,
+  Settings,
+  Edit2,
+
+  UserCircle,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
+
 
 import { useRouter } from "next/navigation";
 
@@ -34,16 +47,15 @@ interface Profile {
 }
 
 export default function ProfilePage() {
-
   const { data: session, status } = useSession();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
-  const router=useRouter();
+  const router = useRouter();
 
   useEffect(() => {
-    if(status === "loading") return;
+    if (status === "loading") return;
     if (!session) {
       router.push("/auth/Sign-In");
       return;
@@ -52,7 +64,7 @@ export default function ProfilePage() {
       try {
         setLoading(true);
         setError(null);
-        
+
         const res = await fetch("/api/user/profile");
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
@@ -86,7 +98,7 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-400 text-lg">{error}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="mt-4 px-6 py-2 bg-gradient-to-r from-[#C15364] to-[#868B96] text-white rounded-lg hover:opacity-80 transition-opacity"
           >
@@ -110,28 +122,21 @@ export default function ProfilePage() {
   const tabs = [
     { id: "overview", label: "Overview", icon: User },
     { id: "purchases", label: "My Plans", icon: Dumbbell },
-    { id: "payments", label: "Payment History", icon: CreditCard }
+    { id: "payments", label: "Payment History", icon: CreditCard },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <div className="bg-black/30 backdrop-blur-sm border-b border-gray-800">
         <div className="max-w-6xl mx-auto px-6 py-8">
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
             {/* Avatar */}
-            <div className="relative">
-              <Image
-                src={profile.avatar}
-                alt={profile.name}
-                className="w-24 h-24 rounded-full border-4 border-[#C15364] object-cover"
-                loading="lazy"
-                height={200}
-                width={200}
-              />
-              <button className="absolute bottom-0 right-0 bg-[#C15364] p-2 rounded-full hover:bg-[#C15364]/80 transition-colors">
-                <Camera className="w-4 h-4" />
-              </button>
+            <div className="relative w-24 h-24">
+              <div className="w-24 h-24 flex items-center justify-center bg-gray-800 rounded-full border-4 border-[#C15364]">
+                  <UserCircle className="w-16 h-16 text-gray-400" />
+                </div>
+             
             </div>
 
             {/* User Info */}
@@ -153,7 +158,9 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Calendar className="w-4 h-4" />
-                  <span>Joined {new Date(profile.joinDate).toLocaleDateString()}</span>
+                  <span>
+                    Joined {new Date(profile.joinDate).toLocaleDateString()}
+                  </span>
                 </div>
               </div>
             </div>
@@ -174,7 +181,9 @@ export default function ProfilePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Total Spent</p>
-                <p className="text-2xl font-bold text-[#C15364]">₹{profile.totalSpent}</p>
+                <p className="text-2xl font-bold text-[#C15364]">
+                  ₹{profile.totalSpent}
+                </p>
               </div>
               <TrendingUp className="w-8 h-8 text-[#C15364]" />
             </div>
@@ -183,7 +192,9 @@ export default function ProfilePage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-400 text-sm">Active Plans</p>
-                <p className="text-2xl font-bold text-green-400">{profile.activePlans}</p>
+                <p className="text-2xl font-bold text-green-400">
+                  {profile.activePlans}
+                </p>
               </div>
               <Dumbbell className="w-8 h-8 text-green-400" />
             </div>
@@ -193,7 +204,11 @@ export default function ProfilePage() {
               <div>
                 <p className="text-gray-400 text-sm">Member Since</p>
                 <p className="text-2xl font-bold text-blue-400">
-                  {Math.floor((Date.now() - new Date(profile.joinDate).getTime()) / (1000 * 60 * 60 * 24 * 30))} months
+                  {Math.floor(
+                    (Date.now() - new Date(profile.joinDate).getTime()) /
+                      (1000 * 60 * 60 * 24 * 30)
+                  )}{" "}
+                  months
                 </p>
               </div>
               <Trophy className="w-8 h-8 text-blue-400" />
@@ -232,7 +247,9 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                       <div className="bg-gray-800 rounded-lg p-4">
-                        <h4 className="font-medium mb-2">Profile Information</h4>
+                        <h4 className="font-medium mb-2">
+                          Profile Information
+                        </h4>
                         <div className="space-y-2 text-sm text-gray-300">
                           <div className="flex justify-between">
                             <span>Full Name:</span>
@@ -244,7 +261,9 @@ export default function ProfilePage() {
                           </div>
                           <div className="flex justify-between">
                             <span>Membership:</span>
-                            <span className="text-green-400">{profile.role}</span>
+                            <span className="text-green-400">
+                              {profile.role}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -277,39 +296,60 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold">My Fitness Plans</h3>
-                  <span className="text-sm text-gray-400">{profile.purchases.length} plans</span>
+                  <span className="text-sm text-gray-400">
+                    {profile.purchases.length} plans
+                  </span>
                 </div>
                 <div className="space-y-4">
                   {profile.purchases.map((purchase) => (
-                    <div key={purchase.id} className="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-colors">
+                    <div
+                      key={purchase.id}
+                      className="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-colors"
+                    >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-4 sm:space-y-0">
                         <div className="flex items-start space-x-4">
                           <div className="bg-[#C15364]/20 p-3 rounded-lg">
                             <Dumbbell className="w-6 h-6 text-[#C15364]" />
                           </div>
                           <div className="space-y-1">
-                            <h4 className="font-semibold text-lg">{purchase.title}</h4>
+                            <h4 className="font-semibold text-lg">
+                              {purchase.title}
+                            </h4>
                             <div className="flex items-center space-x-4 text-sm text-gray-400">
                               <span>Level: {purchase.level}</span>
-                              <span className={`px-2 py-1 rounded-full text-xs ${
-                                purchase.status === 'Active' 
-                                  ? 'bg-green-500/20 text-green-400' 
-                                  : 'bg-gray-600/20 text-gray-400'
-                              }`}>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs ${
+                                  purchase.status === "Active"
+                                    ? "bg-green-500/20 text-green-400"
+                                    : "bg-gray-600/20 text-gray-400"
+                                }`}
+                              >
                                 {purchase.status}
                               </span>
                             </div>
                             <div className="text-sm text-gray-400">
-                              <p>Purchased: {new Date(purchase.purchasedAt).toLocaleDateString()}</p>
+                              <p>
+                                Purchased:{" "}
+                                {new Date(
+                                  purchase.purchasedAt
+                                ).toLocaleDateString()}
+                              </p>
                               {purchase.expiresAt && (
-                                <p>Expires: {new Date(purchase.expiresAt).toLocaleDateString()}</p>
+                                <p>
+                                  Expires:{" "}
+                                  {new Date(
+                                    purchase.expiresAt
+                                  ).toLocaleDateString()}
+                                </p>
                               )}
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-2xl font-bold text-[#C15364]">₹{purchase.price.toLocaleString()}</p>
-                          {purchase.status === 'Active' && (
+                          <p className="text-2xl font-bold text-[#C15364]">
+                            ₹{purchase.price.toLocaleString()}
+                          </p>
+                          {purchase.status === "Active" && (
                             <button className="mt-2 px-4 py-2 bg-gradient-to-r from-[#C15364] to-[#868B96] text-white text-sm rounded-lg hover:opacity-80 transition-opacity">
                               Manage Plan
                             </button>
@@ -326,33 +366,48 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold">Payment History</h3>
-                  <span className="text-sm text-gray-400">{profile.payments.length} transactions</span>
+                  <span className="text-sm text-gray-400">
+                    {profile.payments.length} transactions
+                  </span>
                 </div>
                 <div className="space-y-4">
                   {profile.payments.map((payment) => (
-                    <div key={payment.id} className="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-colors">
+                    <div
+                      key={payment.id}
+                      className="bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-colors"
+                    >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                           <div className="bg-green-500/20 p-3 rounded-lg">
                             <CreditCard className="w-6 h-6 text-green-400" />
                           </div>
                           <div>
-                            <h4 className="font-medium">Payment #{payment.paymentId}</h4>
+                            <h4 className="font-medium">
+                              Payment #{payment.paymentId}
+                            </h4>
                             <div className="flex items-center space-x-4 text-sm text-gray-400 mt-1">
-                              <span>{new Date(payment.createdAt).toLocaleDateString()}</span>
+                              <span>
+                                {new Date(
+                                  payment.createdAt
+                                ).toLocaleDateString()}
+                              </span>
                               <span>{payment.method}</span>
-                              <span className={`px-2 py-1 rounded-full text-xs ${
-                                payment.status === 'Success' 
-                                  ? 'bg-green-500/20 text-green-400' 
-                                  : 'bg-red-500/20 text-red-400'
-                              }`}>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs ${
+                                  payment.status === "Success"
+                                    ? "bg-green-500/20 text-green-400"
+                                    : "bg-red-500/20 text-red-400"
+                                }`}
+                              >
                                 {payment.status}
                               </span>
                             </div>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-xl font-bold text-green-400">₹{payment.amount.toLocaleString()}</p>
+                          <p className="text-xl font-bold text-green-400">
+                            ₹{payment.amount.toLocaleString()}
+                          </p>
                           <button className="mt-1 text-sm text-gray-400 hover:text-white transition-colors">
                             Download Receipt
                           </button>

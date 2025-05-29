@@ -1,17 +1,17 @@
-"use client";
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Menu, X, UserCircle, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useSelector } from "react-redux";
 import { selectCartCount } from "../store/slices/cartSlice"; // Adjust path as needed
+import { usePathname } from "next/navigation"; // Import usePathname
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, status } = useSession();
   const cartCount = useSelector(selectCartCount);
+  const pathname = usePathname(); // Get the current path
 
   const navigationItems = [
     { href: "/programs", label: "Programs" },
@@ -19,6 +19,11 @@ const Header: React.FC = () => {
     { href: "/gyms", label: "Gyms" },
     { href: "/profile", label: "Profile" },
   ];
+
+  // Close menu when the pathname (route) changes
+  useEffect(() => {
+    setIsMenuOpen(false); // Close menu on route change
+  }, [pathname]); // Runs when pathname changes
 
   return (
     <header className="fixed w-full top-0 z-50 bg-black">

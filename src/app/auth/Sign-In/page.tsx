@@ -151,7 +151,7 @@ export default function SignInPage() {
 
           {/* Google Sign In */}
           <button
-            onClick={() => signIn('google')}
+            onClick={() => signIn('google', { callbackUrl: '/' })}
             disabled={isLoading}
             className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-rose-500 to-slate-500 text-white rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
           >

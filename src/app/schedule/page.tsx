@@ -34,7 +34,7 @@ export default function SchedulePage() {
   // Enhanced Loading State
   if (hasPurchased === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[#C15364] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading your schedule...</p>
@@ -130,7 +130,7 @@ export default function SchedulePage() {
 
   // Purchased State - Enhanced Schedule View
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <div className="border-b border-gray-700/50 bg-black/20 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
