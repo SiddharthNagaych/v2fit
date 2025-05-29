@@ -5,10 +5,13 @@ import { Menu, X, UserCircle, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import { useSelector } from "react-redux";
+import { selectCartCount } from "../store/slices/cartSlice"; // Adjust path as needed
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, status } = useSession();
+  const cartCount = useSelector(selectCartCount);
 
   const navigationItems = [
     { href: "/programs", label: "Programs" },
@@ -41,8 +44,13 @@ const Header: React.FC = () => {
 
           {/* Right Icons (Desktop) */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link href="/cart">
+            <Link href="/cart" className="relative">
               <ShoppingCart className="w-6 h-6 text-[#C15364] hover:text-white transition-colors" />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </Link>
             {status === "authenticated" ? (
               <>
@@ -109,7 +117,14 @@ const Header: React.FC = () => {
                 className="flex items-center space-x-2 px-2 py-1 text-[#858B95] hover:text-[#C15364]"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <ShoppingCart className="w-5 h-5" />
+                <div className="relative">
+                  <ShoppingCart className="w-5 h-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </div>
                 <span>Cart</span>
               </Link>
 

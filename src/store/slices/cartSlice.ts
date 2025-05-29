@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { RootState } from '..';
 
 // Cart async actions (sync with server and validate)
 
@@ -192,5 +193,7 @@ export const {
   removePromoCode,
   calculateTotals,
 } = cartSlice.actions;
+export const selectCartCount = (state: RootState) => state.cart.totalItems;
+
 
 export default cartSlice.reducer;

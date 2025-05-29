@@ -24,9 +24,10 @@ import {
 
 import { AnimatedCard } from "./shared/index";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface Gym {
-  _id: { $oid: string };
+  id: string;
   name: string;
   location: string;
   amenities: string[];
@@ -49,6 +50,7 @@ const GymSection: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchGyms = async () => {
@@ -255,7 +257,7 @@ const GymSection: React.FC = () => {
             >
               <div
                 className="relative group cursor-pointer"
-                onClick={() => handleGymClick(currentGym._id.$oid)}
+                onClick={() => handleGymClick(currentGym.id)}
               >
                 {/* Glowing border effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-[#C15364] via-[#858B95] to-[#C15364] rounded-2xl md:rounded-3xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 animate-pulse"></div>
@@ -404,7 +406,13 @@ const GymSection: React.FC = () => {
                       </div>
 
                       {/* CTA Button */}
-                      <button className="w-full py-4 md:py-6 bg-gradient-to-r from-[#C15364] via-[#C15364] to-[#858B95] text-white rounded-xl font-bold text-lg md:text-xl relative overflow-hidden group/btn transform hover:scale-105 transition-all duration-300 shadow-2xl">
+                      <button className="w-full py-4 md:py-6 bg-gradient-to-r from-[#C15364] via-[#C15364] to-[#858B95] text-white rounded-xl font-bold text-lg md:text-xl relative overflow-hidden group/btn transform hover:scale-105 transition-all duration-300 shadow-2xl"
+                          onClick={() => {
+                          if (currentGym?.id) {
+                            router.push(`/gym/${currentGym.id}`);
+                          }
+                        }}
+                      >
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
                         <div className="relative flex items-center justify-center">
                           <span className="mr-3">Explore This Gym</span>

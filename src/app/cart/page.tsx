@@ -154,7 +154,7 @@ const CartPage: React.FC = () => {
         currency: order.currency,
         name: "FitApp",
         description: "Purchase Program",
-        image: "/logo.png",
+        image: "/favicon-96x96.png",
         order_id: order.id,
         handler: async function (response: RazorpayResponse) {
           try {
@@ -169,7 +169,7 @@ const CartPage: React.FC = () => {
 
             const data = await verifyRes.json();
             if (data.success) {
-              window.location.href = "/purchase-success";
+              window.location.href = "/schedule";
             } else {
               alert("Payment verification failed.");
             }
@@ -236,7 +236,7 @@ const CartPage: React.FC = () => {
             Browse our programs to start your fitness journey.
           </p>
           <button
-            onClick={() => window.history.back()}
+            onClick={() => router.push('/programs')}
             className="px-6 py-3 rounded-lg text-white transition transform hover:scale-105 bg-gradient-to-r from-[#C15364] to-[#858B95] hover:from-[#C15364] hover:to-[#858B95]"
           >
             Browse Programs
@@ -376,7 +376,8 @@ const CartPage: React.FC = () => {
         <div className="lg:col-span-2 space-y-4">
           {cartItems.map((item) => (
             <div
-              key={item.id}
+             key={`${item.id}-${item.title}`}
+
               className="bg-slate-800 p-4 rounded-lg flex justify-between"
             >
               <div>

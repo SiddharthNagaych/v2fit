@@ -9,9 +9,27 @@ import {
   Users,
   Trophy,
   AlertCircle,
-  
+  ShoppingCart,
 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import toast from 'react-hot-toast';
+
+
+import { useAppDispatch } from "@/hooks";
+import { addToCart } from "@/store/slices/cartSlice";
+
+interface CartItem {
+  id: string;
+  title: string;
+  price: number;
+  originalPrice?: number;
+  duration: string;
+  instructor: string;
+  image: string;
+  category: string;
+  quantity: number;
+}
 
 const AnimatedCard = memo(
   ({
@@ -130,6 +148,9 @@ const ProgramsSection = () => {
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const fetchPrograms = useCallback(async () => {
     try {
@@ -161,24 +182,33 @@ const ProgramsSection = () => {
 
   const handlePurchase = useCallback(async (program: Program) => {
     try {
-      const response = await fetch("/api/programs/purchase", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ programId: program._id }),
-      });
+      // Convert Program to CartItem format
+      const cartItem: CartItem = {
+        id: program._id,
+        title: program.title,
+        price: program.price,
+        originalPrice: program.originalPrice,
+        duration: program.duration,
+        instructor: program.instructor,
+        image: program.image,
+        category: program.category,
+        quantity: 1,
+      };
 
-      if (response.ok) {
-        alert("Program purchased successfully!");
-      } else {
-        throw new Error("Purchase failed");
-      }
+      // Add to cart using Redux
+      dispatch(addToCart(cartItem));
+      
+      // Close modal if open
+      setSelectedProgram(null);
+      
+      // Navigate to cart page
+      router.push('/cart');
+      
     } catch (err) {
-      console.error("Purchase error:", err);
-      alert("Purchase failed. Please try again.");
+      console.error("Cart error:", err);
+      alert("Failed to add to cart. Please try again.");
     }
-  }, []);
+  }, [dispatch, router]);
 
   const renderProgramCards = useMemo(() => {
     if (loading || error) return null;
@@ -186,7 +216,6 @@ const ProgramsSection = () => {
       <AnimatedCard key={`${program._id}-${index}`} delay={index * 150}>
         <ProgramCard
           program={program}
-        
           onClick={handleProgramClick}
           onPurchase={handlePurchase}
         />
@@ -223,7 +252,6 @@ const ProgramsSection = () => {
                 onClick={() => window.location.reload()}
                 className="w-full py-3 bg-gradient-to-r from-[#EBBAA9] to-[#C15364] hover:from-[#C15364] hover:to-[#EBBAA9] text-white rounded-lg transition-all duration-300"
               >
-                
                 Retry
               </button>
             </GlassCard>
@@ -272,6 +300,7 @@ const ProgramCard = memo(
   ({
     program,
     onClick,
+  
   }: {
     program: Program;
     onClick: (program: Program) => void;
@@ -361,6 +390,9 @@ const ProgramModal = memo(
     onClose: () => void;
     onPurchase: (program: Program) => void;
   }) => {
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
+    const [addedToCart, setAddedToCart] = useState(false);
+
     // Add useEffect to handle escape key and prevent body scroll
     useEffect(() => {
       const handleEscape = (e: KeyboardEvent) => {
@@ -393,6 +425,28 @@ const ProgramModal = memo(
       e.stopPropagation();
       onClose();
     }, [onClose]);
+
+    // Handle purchase with button state changes
+    const handlePurchaseClick = useCallback(async () => {
+      setIsAddingToCart(true);
+      setAddedToCart(false);
+      
+      try {
+        await onPurchase(program);
+        setAddedToCart(true);
+        
+        // Keep the green state for a moment before navigation
+        setTimeout(() => {
+          setIsAddingToCart(false);
+        }, 500);
+        
+      } catch (error) {
+
+        setIsAddingToCart(false);
+        setAddedToCart(false);
+        toast.error(`Failed to add to cart. Please try again ${error}`);
+      }
+    }, [onPurchase, program]);
 
     return (
       <div 
@@ -536,11 +590,11 @@ const ProgramModal = memo(
                       <div className="text-center mb-8">
                         <div className="flex items-center justify-center gap-3 mb-4">
                           <span className="text-5xl font-bold text-white">
-                            {program.price}
+                            INR {program.price}
                           </span>
                           {program.originalPrice > program.price && (
                             <span className="text-2xl text-gray-400 line-through">
-                              {program.originalPrice}
+                              INR {program.originalPrice}
                             </span>
                           )}
                         </div>
@@ -566,10 +620,30 @@ const ProgramModal = memo(
                       </div>
 
                       <button
-                        onClick={() => onPurchase(program)}
-                        className="w-full py-4 bg-gradient-to-r from-[#EBBAA9] to-[#C15364] hover:from-[#C15364] hover:to-[#EBBAA9] text-white rounded-xl font-semibold text-lg mb-4 transition-all duration-300"
+                        onClick={handlePurchaseClick}
+                        disabled={isAddingToCart}
+                        className={`w-full py-4 text-white rounded-xl font-semibold text-lg mb-4 transition-all duration-300 flex items-center justify-center ${
+                          addedToCart || isAddingToCart
+                            ? 'bg-green-600 hover:bg-green-700'
+                            : 'bg-gradient-to-r from-[#EBBAA9] to-[#C15364] hover:from-[#C15364] hover:to-[#EBBAA9]'
+                        }`}
                       >
-                        Purchase Program
+                        {isAddingToCart ? (
+                          <>
+                            <ShoppingCart className="w-5 h-5 mr-2 animate-pulse" />
+                            Adding to Cart...
+                          </>
+                        ) : addedToCart ? (
+                          <>
+                            <CheckCircle className="w-5 h-5 mr-2" />
+                            Added to Cart!
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart className="w-5 h-5 mr-2" />
+                            Add to Cart
+                          </>
+                        )}
                       </button>
 
                       <p className="text-center text-gray-400 text-sm">

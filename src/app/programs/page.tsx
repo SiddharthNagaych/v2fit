@@ -9,7 +9,7 @@ import {
   ShoppingCart,
  
   Play,
-  Eye,
+
   Flame,
   Trophy,
   Target,
@@ -694,9 +694,7 @@ const ProgramsPage: React.FC = () => {
                         {isInCart(program.id) ? "Added to Cart" : "Add to Cart"}
                       </span>
                     </button>
-                    <button className="px-4 py-3 bg-gradient-to-r from-[#868B96]/20 to-[#C15364]/10 text-gray-300 rounded-xl hover:from-[#868B96]/30 hover:to-[#C15364]/20 hover:text-white transition-all border border-[#868B96]/20 hover:border-[#C15364]/40">
-                      <Eye className="w-5 h-5" />
-                    </button>
+                   
                   </div>
                 </div>
               </div>

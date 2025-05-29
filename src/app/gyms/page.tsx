@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { MapPin, Star, Users, Dumbbell, Wifi, Car, Waves, Heart } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface Gym {
   id: string;
@@ -32,7 +33,7 @@ const amenityIcons = {
 
 export default function GymSectionPage() {
   const [gyms, setGyms] = useState<Gym[]>([]);
-  const [selectedGym, setSelectedGym] = useState<Gym | null>(null);
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -163,7 +164,7 @@ export default function GymSectionPage() {
           {/* Action Buttons */}
           <div className="flex space-x-3">
             <button 
-              onClick={() => setSelectedGym(gym)}
+              onClick={() => router.push(`/gym/${gym.id}`)}
               className="flex-1 bg-gradient-to-r from-[#C15364] to-[#868B96] text-white py-2 px-4 rounded-lg hover:opacity-80 transition-opacity font-medium"
             >
               View Details
@@ -216,87 +217,7 @@ export default function GymSectionPage() {
         </div>
       </div>
 
-      {/* Modal for Selected Gym */}
-      {selectedGym && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-white">{selectedGym.name}</h2>
-                <button 
-                  onClick={() => setSelectedGym(null)}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                {selectedGym.images.map((image, index) => (
-                  <Image
-                    key={index}
-                    src={image} 
-                    alt={`${selectedGym.name} ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-lg"
-                    loading="lazy"
-                    height={400}
-                    width={300}
-                  />
-                ))}
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-white font-medium mb-2">About</h3>
-                  <p className="text-gray-300">{selectedGym.highlight}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-white font-medium mb-2">All Programs</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedGym.programs.map((program, index) => (
-                      <span 
-                        key={index}
-                        className="text-sm bg-gray-800 text-gray-300 px-3 py-1 rounded-full"
-                      >
-                        {program}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-white font-medium mb-2">All Amenities</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {selectedGym.amenities.map((amenity, index) => (
-                      <div key={index} className="flex items-center text-sm text-gray-400">
-                        <div className="w-2 h-2 bg-[#C15364] rounded-full mr-3"></div>
-                        {amenity}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-gray-800">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center">
-                      <Star className="w-5 h-5 text-yellow-400 fill-current mr-1" />
-                      <span className="text-white font-medium">{selectedGym.rating}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Users className="w-5 h-5 text-[#C15364] mr-1" />
-                      <span className="text-white">{selectedGym.members} members</span>
-                    </div>
-                  </div>
-                  <button className="bg-gradient-to-r from-[#C15364] to-[#868B96] text-white px-6 py-2 rounded-lg hover:opacity-80 transition-opacity">
-                    Join Now
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+    
     </div>
   );
 }
