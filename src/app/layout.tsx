@@ -17,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <Head>
         {/* Basic SEO */}
+        <title>V21 Fit Now | Empower Your Strength</title>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
