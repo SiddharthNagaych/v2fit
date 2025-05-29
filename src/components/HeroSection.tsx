@@ -20,15 +20,15 @@ export default function HeroSection() {
       
       <section className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center mt-4">
         {/* Background gradient overlay */}
-       <div className="absolute inset-0">
+       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <Image
           src="/gym5.webp"
           alt="Fitness background"
-          layout="fill"
-          objectFit="cover"
+          height={600}
+          width={1400}
           quality={75}
-          priority={false} // This enables lazy loading
-          className="opacity-70"
+         
+          className="opacity-70 "
           loading='lazy'
         />
       </div>

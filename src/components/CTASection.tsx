@@ -73,7 +73,7 @@ const CTASection = () => {
         }
       `}</style>
 
-      <section className="py-24 bg-black relative overflow-hidden">
+      <section className="py-24 bg-black relative overflow-hidden flex items-center justify-center">
         {/* Dramatic black border with gradient */}
         <div className="absolute inset-0 border-4 border-transparent bg-gradient-to-r from-[#C15364] via-[#858B95] to-[#C15364] p-1">
           <div className="bg-black h-full w-full"></div>

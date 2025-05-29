@@ -63,7 +63,7 @@ const GymSection: React.FC = () => {
         }
         
         const data = await res.json();
-        console.log("API Response:", data);
+       
         setGyms(data);
         setError(null);
       } catch (err) {
