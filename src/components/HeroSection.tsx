@@ -25,7 +25,7 @@ export default function HeroSection() {
           src="/gym5.webp"
           alt="Fitness background"
           height={600}
-          width={1400}
+          width={1600}
           quality={75}
          
           className="opacity-70 "
