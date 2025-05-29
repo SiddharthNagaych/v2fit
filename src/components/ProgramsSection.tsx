@@ -327,10 +327,10 @@ const ProgramCard = memo(
 
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <span className="text-3xl font-bold text-white">${program.price}</span>
+            <span className="text-3xl font-bold text-white">INR-{program.price}</span>
             {program.originalPrice > program.price && (
               <span className="text-lg text-gray-400 line-through ml-2">
-                ${program.originalPrice}
+                INR-{program.originalPrice}
               </span>
             )}
           </div>
@@ -536,11 +536,11 @@ const ProgramModal = memo(
                       <div className="text-center mb-8">
                         <div className="flex items-center justify-center gap-3 mb-4">
                           <span className="text-5xl font-bold text-white">
-                            ${program.price}
+                            {program.price}
                           </span>
                           {program.originalPrice > program.price && (
                             <span className="text-2xl text-gray-400 line-through">
-                              ${program.originalPrice}
+                              {program.originalPrice}
                             </span>
                           )}
                         </div>

@@ -623,11 +623,11 @@ const ProgramsPage: React.FC = () => {
                     <div className="text-right">
                       {program.originalPrice && (
                         <p className="text-gray-500 text-sm line-through">
-                          ${program.originalPrice}
+                          INR-{program.originalPrice}
                         </p>
                       )}
                       <p className="text-2xl font-bold text-white">
-                        ${program.price}
+                        INR-{program.price}
                       </p>
                     </div>
                   </div>
