@@ -434,7 +434,7 @@ export default function SignupForm() {
               <p className="text-slate-400 text-sm">
                 Already have an account?{" "}
                 <a
-                  href="#"
+                  href="/auth/Sign-In"
                   className="text-rose-400 hover:text-rose-300 font-medium transition-colors"
                 >
                   Sign in here
