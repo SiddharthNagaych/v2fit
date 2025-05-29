@@ -7,7 +7,7 @@ import {
   Filter,
   Search,
   ShoppingCart,
-  Heart,
+ 
   Play,
   Eye,
   Flame,
@@ -28,7 +28,7 @@ interface Program {
   price: number;
   originalPrice?: number;
   duration: string;
-  level: "Beginner" | "Intermediate" | "Advanced";
+  level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
   category: string;
   instructor: string;
   rating: number;
@@ -58,7 +58,7 @@ const SkeletonCard: React.FC<{ viewMode: "grid" | "list" }> = ({ viewMode }) => 
   return (
     <div
       className={`group relative bg-gradient-to-br from-gray-900/80 to-black/90 backdrop-blur-md rounded-2xl border border-[#868B96]/20 overflow-hidden animate-pulse ${
-        viewMode === "list" ? "flex" : ""
+        viewMode === "list" ? "flex" : "flex flex-col h-full"
       }`}
     >
       {/* Image Section Skeleton */}
@@ -85,7 +85,7 @@ const SkeletonCard: React.FC<{ viewMode: "grid" | "list" }> = ({ viewMode }) => 
       </div>
 
       {/* Content Section Skeleton */}
-      <div className="p-6 flex-1">
+      <div className="p-6 flex-1 flex flex-col">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
             {/* Title skeleton */}
@@ -102,7 +102,7 @@ const SkeletonCard: React.FC<{ viewMode: "grid" | "list" }> = ({ viewMode }) => 
         </div>
 
         {/* Description skeleton */}
-        <div className="space-y-2 mb-4">
+        <div className="space-y-2 mb-4 flex-grow">
           <div className="w-full h-4 bg-gray-700/50 rounded animate-pulse" />
           <div className="w-3/4 h-4 bg-gray-700/50 rounded animate-pulse" />
         </div>
@@ -121,8 +121,8 @@ const SkeletonCard: React.FC<{ viewMode: "grid" | "list" }> = ({ viewMode }) => 
           <div className="w-16 h-6 bg-gray-700/50 rounded-lg animate-pulse" />
         </div>
 
-        {/* Buttons skeleton */}
-        <div className="flex space-x-3">
+        {/* Buttons skeleton - Fixed at bottom */}
+        <div className="flex space-x-3 mt-auto">
           <div className="flex-1 h-12 bg-gray-700/50 rounded-xl animate-pulse" />
           <div className="w-12 h-12 bg-gray-700/50 rounded-xl animate-pulse" />
         </div>
@@ -133,7 +133,7 @@ const SkeletonCard: React.FC<{ viewMode: "grid" | "list" }> = ({ viewMode }) => 
 
 const ProgramsPage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const favorites = useAppSelector((state: RootState) => state.favorites.items);
+
   const cartItems = useAppSelector((state: RootState) => state.cart.items);
 
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -163,6 +163,12 @@ const ProgramsPage: React.FC = () => {
 
   const isInCart = (programId: string) => {
     return Array.isArray(cartItems) && cartItems.some((item) => item.id === programId);
+  };
+
+  // Truncate text function to ensure consistent lengths
+  const truncateText = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trim() + "...";
   };
 
   // Fetch programs with loading state
@@ -249,7 +255,7 @@ const ProgramsPage: React.FC = () => {
     "Wellness",
     "Sports Performance",
   ];
-  const levels = ["All", "Beginner", "Intermediate", "Advanced"];
+  const levels = ["All", "BEGINNER", "INTERMEDIATE", "ADVANCED"];
 
   return (
     <div className="min-h-screen bg-black">
@@ -526,7 +532,7 @@ const ProgramsPage: React.FC = () => {
               <div
                 key={program.id}
                 className={`group relative bg-gradient-to-br from-gray-900/80 to-black/90 backdrop-blur-md rounded-2xl border border-[#868B96]/20 hover:border-[#C15364]/40 transition-all duration-500 overflow-hidden hover:shadow-2xl hover:shadow-[#C15364]/10 float-animation ${
-                  viewMode === "list" ? "flex" : ""
+                  viewMode === "list" ? "flex" : "flex flex-col h-full"
                 } ${program.isFeatured ? "glow-effect" : ""}`}
               >
                 {/* Gradient overlay */}
@@ -570,26 +576,15 @@ const ProgramsPage: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Favorite button */}
-                  <button
-                    className="absolute top-4 right-4 p-2 bg-black/50 backdrop-blur-sm rounded-full hover:bg-[#C15364]/20 transition-colors z-10"
-                  >
-                    <Heart
-                      className={`w-5 h-5 ${
-                        favorites.includes(program.id)
-                          ? "text-[#C15364] fill-current"
-                          : "text-white"
-                      }`}
-                    />
-                  </button>
+            
 
                   {/* Level Badge */}
                   <div className="absolute bottom-4 left-4 z-10">
                     <span
                       className={`px-3 py-1 text-xs font-bold rounded-full shadow-lg ${
-                        program.level === "Beginner"
+                        program.level === "BEGINNER"
                           ? "bg-gradient-to-r from-green-500/80 to-green-600/80 text-white"
-                          : program.level === "Intermediate"
+                          : program.level === "INTERMEDIATE"
                           ? "bg-gradient-to-r from-yellow-500/80 to-yellow-600/80 text-white"
                           : "bg-gradient-to-r from-red-500/80 to-red-600/80 text-white"
                       }`}
@@ -599,13 +594,15 @@ const ProgramsPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Content Section */}
-                <div className="p-6 flex-1 relative z-10">
+                {/* Content Section - KEY CHANGE: Added flex flex-col structure */}
+                <div className="p-6 flex-1 flex flex-col relative z-10">
+                  {/* Header Section */}
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-2">
                         <h3 className="text-xl font-bold text-white group-hover:text-[#C15364] transition-colors">
-                          {program.title}
+                          {/* Truncate title to ensure consistency */}
+                          {truncateText(program.title, viewMode === "list" ? 60 : 45)}
                         </h3>
                         {isInCart(program.id) && (
                           <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full border border-green-500/30">
@@ -632,11 +629,15 @@ const ProgramsPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">
-                    {program.description}
-                  </p>
+                  {/* Description - Flexible section that can grow */}
+                  <div className="flex-grow mb-4">
+                    <p className="text-gray-400 text-sm leading-relaxed">
+                      {/* Truncate description to ensure consistency */}
+                      {truncateText(program.description, viewMode === "list" ? 150 : 120)}
+                    </p>
+                  </div>
 
-                  {/* Stats */}
+                  {/* Stats - Fixed height section */}
                   <div className="flex items-center space-x-4 mb-4 text-sm text-gray-300">
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 text-yellow-500 fill-current" />
@@ -654,6 +655,8 @@ const ProgramsPage: React.FC = () => {
                       <span>{program.students.toLocaleString()}</span>
                     </div>
                   </div>
+
+         
 
                   {/* Features */}
                   <div className="mb-6">
