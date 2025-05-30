@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch, store } from "@/store";
-import { ShoppingCart, Trash2, Plus, Minus, X, User, LogIn } from "lucide-react";
+import { ShoppingCart, Trash2, Plus, Minus, X, User, LogIn, AlertCircle, CheckCircle } from "lucide-react";
 import {
   removeFromCart,
   updateQuantity,
@@ -52,6 +52,21 @@ declare global {
   }
 }
 
+// Error types for better error handling
+enum ErrorType {
+  NETWORK_ERROR = 'NETWORK_ERROR',
+  PAYMENT_ERROR = 'PAYMENT_ERROR',
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+  AUTH_ERROR = 'AUTH_ERROR',
+  SERVER_ERROR = 'SERVER_ERROR'
+}
+
+interface PaymentError {
+  type: ErrorType;
+  message: string;
+  retryable: boolean;
+}
+
 const CartPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { data: session, status } = useSession();
@@ -64,6 +79,9 @@ const CartPage: React.FC = () => {
 
   const [promoCode, setPromoCode] = useState("");
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [paymentError, setPaymentError] = useState<PaymentError | null>(null);
+  const [retryAttempt, setRetryAttempt] = useState(0);
+  const [showRetryOptions, setShowRetryOptions] = useState(false);
 
   const originalTotal = cartItems.reduce(
     (sum, item) => sum + (item.originalPrice || item.price) * item.quantity,
@@ -71,6 +89,85 @@ const CartPage: React.FC = () => {
   );
   const savings = originalTotal - subtotal;
   const finalTotal = subtotal - discountAmount;
+
+  const MAX_RETRY_ATTEMPTS = 3;
+  const RETRY_DELAY = 1000; // 1 second
+
+  // Utility function to categorize errors
+ const categorizeError = (error: unknown): PaymentError => {
+  const errorObj = error instanceof Error ? error : new Error(String(error));
+  const message = errorObj.message || 'An unexpected error occurred';
+  
+  if (message.includes('network') || message.includes('fetch')) {
+    return {
+      type: ErrorType.NETWORK_ERROR,
+      message: 'Network error. Please check your internet connection.',
+      retryable: true
+    };
+  }
+  
+  if (message.includes('auth') || message.includes('unauthorized')) {
+    return {
+      type: ErrorType.AUTH_ERROR,
+      message: 'Authentication error. Please sign in again.',
+      retryable: false
+    };
+  }
+  
+  if (message.includes('payment') || message.includes('razorpay')) {
+    return {
+      type: ErrorType.PAYMENT_ERROR,
+      message: 'Payment processing error. Please try again.',
+      retryable: true
+    };
+  }
+  
+  if (error instanceof Response && error.status >= 500) {
+    return {
+      type: ErrorType.SERVER_ERROR,
+      message: 'Server error. Please try again in a moment.',
+      retryable: true
+    };
+  }
+  
+  return {
+    type: ErrorType.VALIDATION_ERROR,
+    message: message,
+    retryable: false
+  };
+};
+
+
+  // Utility function for delay
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  // Enhanced error notification component
+  const ErrorNotification = ({ error, onRetry, onDismiss }: { 
+    error: PaymentError; 
+    onRetry?: () => void; 
+    onDismiss: () => void;
+  }) => (
+    <div className="fixed top-4 right-4 bg-red-500/90 backdrop-blur-sm text-white p-4 rounded-lg shadow-lg max-w-md z-50">
+      <div className="flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 text-red-200 flex-shrink-0 mt-0.5" />
+        <div className="flex-1">
+          <h4 className="font-semibold text-sm">Payment Error</h4>
+          <p className="text-sm text-red-100 mt-1">{error.message}</p>
+          {error.retryable && onRetry && (
+            <button
+              onClick={onRetry}
+              className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-xs mt-2 transition"
+            >
+              Try Again
+            </button>
+          )}
+        </div>
+        <button onClick={onDismiss} className="text-red-200 hover:text-white">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
 
   const handleUpdateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity === 0) {
@@ -112,42 +209,62 @@ const CartPage: React.FC = () => {
     });
   };
 
-  const checkoutHandler = async (amount: number) => {
-    const isScriptLoaded = await loadRazorpayScript();
-    if (!isScriptLoaded) {
-      alert("Failed to load Razorpay SDK.");
-      return;
-    }
-
+  // Enhanced checkout handler with retry mechanism
+  const checkoutHandler = async (amount: number, currentRetryCount = 0): Promise<void> => {
     try {
-      const cartState = store.getState().cart;
+      console.log(`Checkout attempt ${currentRetryCount + 1}/${MAX_RETRY_ATTEMPTS + 1}`);
+      
+      // Load Razorpay script
+      const isScriptLoaded = await loadRazorpayScript();
+      if (!isScriptLoaded) {
+        throw new Error("Failed to load Razorpay SDK. Please refresh and try again.");
+      }
 
+      // Validate session
+      if (!session?.user?.id || !session?.user?.email) {
+        throw new Error("Authentication required. Please sign in to complete your purchase.");
+      }
+
+      // Sync cart with server
+      const cartState = store.getState().cart;
+      console.log('Syncing cart state:', cartState);
+      
       const syncResponse = await fetch("/api/cart/sync-for-payment", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache"
+        },
         body: JSON.stringify(cartState),
       });
 
-      if (!syncResponse.ok) throw new Error("Failed to sync cart");
+      if (!syncResponse.ok) {
+        const syncError = await syncResponse.json().catch(() => ({}));
+        throw new Error(`Cart sync failed: ${syncError.message || `HTTP ${syncResponse.status}`}`);
+      }
 
+      const syncData = await syncResponse.json();
+      console.log('Cart sync successful:', syncData);
+
+      // Create Razorpay order
       const orderResponse = await fetch("/api/razorpay/order", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache"
+        },
         body: JSON.stringify({ amount: Math.round(amount) }),
       });
 
       if (!orderResponse.ok) {
-        const errorData = await orderResponse.json();
-        throw new Error(errorData.message || "Failed to create Razorpay order");
+        const errorData = await orderResponse.json().catch(() => ({}));
+        throw new Error(`Order creation failed: ${errorData.message || `HTTP ${orderResponse.status}`}`);
       }
 
       const { order }: { order: RazorpayOrder } = await orderResponse.json();
+      console.log('Razorpay order created:', order);
 
-      if (!session?.user?.id || !session?.user?.email) {
-        alert("Please sign in to complete your purchase");
-        return;
-      }
-
+      // Configure Razorpay options
       const options: RazorpayOptions = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
         amount: order.amount,
@@ -158,6 +275,8 @@ const CartPage: React.FC = () => {
         order_id: order.id,
         handler: async function (response: RazorpayResponse) {
           try {
+            console.log('Payment successful, verifying:', response);
+            
             const verifyRes = await fetch("/api/razorpay/verify", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -168,14 +287,19 @@ const CartPage: React.FC = () => {
             });
 
             const data = await verifyRes.json();
+            
             if (data.success) {
+              console.log('Payment verified successfully');
+              // Only clear cart after successful verification
+              dispatch(clearCart());
               window.location.href = "/schedule";
             } else {
-              alert("Payment verification failed.");
+              throw new Error("Payment verification failed. Please contact support.");
             }
           } catch (err) {
-            console.error("Verification failed", err);
-            alert("Payment verification error.");
+            console.error("Payment verification failed:", err);
+            setPaymentError(categorizeError(err));
+            setShowRetryOptions(true);
           }
         },
         prefill: {
@@ -184,33 +308,76 @@ const CartPage: React.FC = () => {
         },
         theme: { color: "#6366f1" },
         modal: {
-          ondismiss: () => console.log("Checkout closed by user"),
+          ondismiss: () => {
+            console.log("Payment modal closed by user");
+            setIsCheckingOut(false);
+          },
         },
       };
 
+      // Open Razorpay checkout
       const rzp = new window.Razorpay(options);
       rzp.open();
-    } catch (err) {
-      console.error("Checkout error:", err);
+      
+      // Reset error states on successful initialization
+      setPaymentError(null);
+      setRetryAttempt(0);
+      
+    } catch (error: unknown) {
+      console.error(`Checkout attempt ${currentRetryCount + 1} failed:`, error);
+      
+      const categorizedError = categorizeError(error);
+      
+      // Check if we should retry
+      if (categorizedError.retryable && currentRetryCount < MAX_RETRY_ATTEMPTS) {
+        console.log(`Retrying in ${RETRY_DELAY}ms... (attempt ${currentRetryCount + 1}/${MAX_RETRY_ATTEMPTS})`);
+        setRetryAttempt(currentRetryCount + 1);
+        
+        await delay(RETRY_DELAY * (currentRetryCount + 1)); // Exponential backoff
+        return checkoutHandler(amount, currentRetryCount + 1);
+      } else {
+        // Max retries reached or non-retryable error
+        setPaymentError(categorizedError);
+        setShowRetryOptions(categorizedError.retryable);
+        throw error;
+      }
     }
   };
 
   const handleCheckout = async () => {
     if (!session?.user?.email) {
-      alert("Please sign in to complete your purchase");
+      setPaymentError({
+        type: ErrorType.AUTH_ERROR,
+        message: "Please sign in to complete your purchase",
+        retryable: false
+      });
       return;
     }
 
     setIsCheckingOut(true);
+    setPaymentError(null);
+    setRetryAttempt(0);
+    setShowRetryOptions(false);
+
     try {
       await checkoutHandler(finalTotal);
-      dispatch(clearCart());
     } catch (error) {
-      console.error("Checkout failed:", error);
-      alert("Checkout failed. Please try again.");
+      console.error("Final checkout error:", error);
+      // Error is already set in checkoutHandler
     } finally {
       setIsCheckingOut(false);
     }
+  };
+
+  const handleRetryPayment = () => {
+    setPaymentError(null);
+    setShowRetryOptions(false);
+    handleCheckout();
+  };
+
+  const dismissError = () => {
+    setPaymentError(null);
+    setShowRetryOptions(false);
   };
 
   // Loading state
@@ -371,13 +538,21 @@ const CartPage: React.FC = () => {
   // Authenticated user - Full cart functionality
   return (
     <div className="min-h-screen bg-slate-900 text-white p-6">
+      {/* Error Notification */}
+      {paymentError && (
+        <ErrorNotification
+          error={paymentError}
+          onRetry={showRetryOptions ? handleRetryPayment : undefined}
+          onDismiss={dismissError}
+        />
+      )}
+
       <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-6">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
           {cartItems.map((item) => (
             <div
-             key={`${item.id}-${item.title}`}
-
+              key={`${item.id}-${item.title}`}
               className="bg-slate-800 p-4 rounded-lg flex justify-between"
             >
               <div>
@@ -408,7 +583,7 @@ const CartPage: React.FC = () => {
                       handleUpdateQuantity(item.id, item.quantity + 1)
                     }
                     className="text-white bg-slate-700 p-1 rounded hover:bg-slate-600 transition"
-                  >
+                    >
                     <Plus size={16} />
                   </button>
                   <button
@@ -479,14 +654,41 @@ const CartPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Checkout Button */}
-          <button
-            onClick={handleCheckout}
-            disabled={isCheckingOut}
-            className="w-full bg-gradient-to-r from-rose-500 to-slate-500 px-4 py-3 rounded-lg text-white font-bold hover:scale-105 transition transform disabled:opacity-50"
-          >
-            {isCheckingOut ? "Processing..." : "Pay with Razorpay"}
-          </button>
+          {/* Checkout Button with enhanced states */}
+          <div className="space-y-2">
+            <button
+              onClick={handleCheckout}
+              disabled={isCheckingOut}
+              className="w-full bg-gradient-to-r from-rose-500 to-slate-500 px-4 py-3 rounded-lg text-white font-bold hover:scale-105 transition transform disabled:opacity-50 disabled:hover:scale-100"
+            >
+              {isCheckingOut ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  {retryAttempt > 0 ? `Retrying... (${retryAttempt}/${MAX_RETRY_ATTEMPTS})` : "Processing..."}
+                </div>
+              ) : (
+                "Pay with Razorpay"
+              )}
+            </button>
+            
+            {/* Retry information */}
+            {retryAttempt > 0 && isCheckingOut && (
+              <p className="text-xs text-slate-400 text-center">
+                Attempting to connect... Please wait
+              </p>
+            )}
+          </div>
+
+          {/* Security notice */}
+          <div className="bg-slate-800/50 p-3 rounded-lg">
+            <div className="flex items-center gap-2 text-green-400 text-sm">
+              <CheckCircle className="w-4 h-4" />
+              <span>Secure Payment via Razorpay</span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Your payment information is encrypted and secure
+            </p>
+          </div>
         </div>
       </div>
     </div>

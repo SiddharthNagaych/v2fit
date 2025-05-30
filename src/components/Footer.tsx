@@ -18,10 +18,10 @@ const Footer: React.FC = () => {
     {
       title: "Programs",
       links: [
-        { text: "Fat Loss", href: "#programs" },
-        { text: "Muscle Gain", href: "#programs" },
-        { text: "Mental Fitness", href: "#programs" },
-        { text: "Health Talks", href: "#programs" }
+        { text: "Fat Loss", href: "/programs" },
+        { text: "Muscle Gain", href: "/programs" },
+        { text: "Mental Fitness", href: "/programs" },
+        { text: "Health Talks", href: "/programs" }
       ]
     },
     {
@@ -35,7 +35,7 @@ const Footer: React.FC = () => {
     {
       title: "Contact",
       links: [
-        { text: "Find Locations", href: "#gyms" },
+        { text: "Find Locations", href: "/gyms" },
         { text: "Support", onClick: () => window.location.href="mailto:sidnagaych4321@gmail.com" },
       
       ]
