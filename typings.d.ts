@@ -60,12 +60,11 @@ type TabType = 'programs' | 'settings';
 interface AmenityIcons {
   [key: string]: React.ReactNode;
 }   
-// types/index.ts
- interface CartItem {
+interface CartItem {
   id: string;
   title: string;
   price: number;
-  originalPrice?: number;
+  originalPrice?: number | null;
   duration: string;
   instructor: string;
   image: string;
@@ -83,7 +82,7 @@ interface CartState {
   lastSynced: number | null;
   status: 'idle' | 'syncing' | 'error';
   error: string | null;
-   expiresAt?: number;
+  expiresAt?: number;
 }
 interface RazorpayPrefill {
   name: string;
