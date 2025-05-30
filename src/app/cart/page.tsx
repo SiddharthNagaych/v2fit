@@ -22,6 +22,7 @@ import {
 } from "@/store/slices/cartSlice";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface RazorpayOrder {
   id: string;
@@ -238,9 +239,9 @@ const CartPage: React.FC = () => {
     currentRetryCount = 0
   ): Promise<void> => {
     try {
-      console.log(
-        `Checkout attempt ${currentRetryCount + 1}/${MAX_RETRY_ATTEMPTS + 1}`
-      );
+      // console.log(
+      //   `Checkout attempt ${currentRetryCount + 1}/${MAX_RETRY_ATTEMPTS + 1}`
+      // );
 
       // Load Razorpay script
       const isScriptLoaded = await loadRazorpayScript();
@@ -259,7 +260,7 @@ const CartPage: React.FC = () => {
 
       // Sync cart with server
       const cartState = store.getState().cart;
-      console.log("Syncing cart state:", cartState);
+      // console.log("Syncing cart state:", cartState);
 
       const syncResponse = await fetch("/api/cart/sync-for-payment", {
         method: "POST",
@@ -269,19 +270,21 @@ const CartPage: React.FC = () => {
         },
         body: JSON.stringify(cartState),
       });
-      console.log("Cart sync response:", syncResponse.status);
-      console.log(
-        "Sync response headers:",
-        Object.fromEntries(syncResponse.headers.entries())
-      );
+      // console.log("Cart sync response:", syncResponse.status);
+      // console.log(
+      //   "Sync response headers:",
+      //   Object.fromEntries(syncResponse.headers.entries())
+      // );
 
       if (!syncResponse.ok) {
         const syncError = await syncResponse.json().catch((e) => {
-          console.error("Failed to parse sync error response:", e);
+          // console.error("Failed to parse sync error response:", e);
+          console.error("Failed to sync cart. Please try again.", e);
           return { message: `HTTP ${syncResponse.status}` };
         });
 
-        console.error("Sync error details:", syncError);
+        // console.error("Sync error details:", syncError);
+        toast.error("Failed to sync cart. Please try again.");
         throw new Error(
           `Cart sync failed: ${
             syncError.message ||
@@ -291,8 +294,8 @@ const CartPage: React.FC = () => {
         );
       }
 
-      const syncData = await syncResponse.json();
-      console.log("Cart sync successful:", syncData);
+      // const syncData = await syncResponse.json();
+      // console.log("Cart sync successful:", syncData);
 
       // Create Razorpay order
       const orderResponse = await fetch("/api/razorpay/order", {
@@ -314,7 +317,7 @@ const CartPage: React.FC = () => {
       }
 
       const { order }: { order: RazorpayOrder } = await orderResponse.json();
-      console.log("Razorpay order created:", order);
+      // console.log("Razorpay order created:", order);
 
       // Configure Razorpay options
       const options: RazorpayOptions = {
@@ -341,7 +344,7 @@ const CartPage: React.FC = () => {
             const data = await verifyRes.json();
 
             if (data.success) {
-              console.log("Payment verified successfully");
+              // console.log("Payment verified successfully");
               // Only clear cart after successful verification
               dispatch(clearCart());
               window.location.href = "/schedule";
@@ -351,7 +354,7 @@ const CartPage: React.FC = () => {
               );
             }
           } catch (err) {
-            console.error("Payment verification failed:", err);
+            // console.error("Payment verification failed:", err);
             setPaymentError(categorizeError(err));
             setShowRetryOptions(true);
           }
@@ -363,7 +366,7 @@ const CartPage: React.FC = () => {
         theme: { color: "#6366f1" },
         modal: {
           ondismiss: () => {
-            console.log("Payment modal closed by user");
+            // console.log("Payment modal closed by user");
             setIsCheckingOut(false);
           },
         },
@@ -377,7 +380,7 @@ const CartPage: React.FC = () => {
       setPaymentError(null);
       setRetryAttempt(0);
     } catch (error: unknown) {
-      console.error(`Checkout attempt ${currentRetryCount + 1} failed:`, error);
+      // console.error(`Checkout attempt ${currentRetryCount + 1} failed:`, error);
 
       const categorizedError = categorizeError(error);
 
@@ -386,11 +389,11 @@ const CartPage: React.FC = () => {
         categorizedError.retryable &&
         currentRetryCount < MAX_RETRY_ATTEMPTS
       ) {
-        console.log(
-          `Retrying in ${RETRY_DELAY}ms... (attempt ${
-            currentRetryCount + 1
-          }/${MAX_RETRY_ATTEMPTS})`
-        );
+        // console.log(
+        //   `Retrying in ${RETRY_DELAY}ms... (attempt ${
+        //     currentRetryCount + 1
+        //   }/${MAX_RETRY_ATTEMPTS})`
+        // );
         setRetryAttempt(currentRetryCount + 1);
 
         await delay(RETRY_DELAY * (currentRetryCount + 1)); // Exponential backoff
@@ -422,7 +425,9 @@ const CartPage: React.FC = () => {
     try {
       await checkoutHandler(finalTotal);
     } catch (error) {
-      console.error("Final checkout error:", error);
+      // console.error("Final checkout error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      toast.error(`Failed to complete payment: ${errorMessage}`);
       // Error is already set in checkoutHandler
     } finally {
       setIsCheckingOut(false);
